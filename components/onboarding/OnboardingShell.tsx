@@ -107,7 +107,7 @@ export function OnboardingShell({ availableTrainers }: OnboardingShellProps) {
         throw new Error(body.error ?? "Failed to save center")
       }
       const { centerId } = await res.json()
-      router.push(`/cf-admin?onboarded=${centerId}`)
+      router.push(`/cf-admin/onboarding?onboarded=${centerId}`)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong")
     } finally {
