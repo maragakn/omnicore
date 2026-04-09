@@ -163,7 +163,7 @@ export function RWASetupShell({ leadId, token, societyName }: Props) {
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#9ca3af] uppercase tracking-wider">Capacity *</label>
-              <input {...register("capacity")} type="number" className="form-input" placeholder="50" />
+              <input {...register("capacity")} className="form-input" placeholder="50" inputMode="numeric" />
               {errors.capacity && <p className="text-xs text-red-400">{errors.capacity.message}</p>}
             </div>
 
@@ -187,13 +187,13 @@ export function RWASetupShell({ leadId, token, societyName }: Props) {
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#9ca3af] uppercase tracking-wider">Gym Size (sq ft)</label>
-              <input {...register("gymSqFt")} type="number" className="form-input" placeholder="1200" />
+              <input {...register("gymSqFt")} className="form-input" placeholder="1200" inputMode="numeric" />
               {errors.gymSqFt && <p className="text-xs text-red-400">{String(errors.gymSqFt.message)}</p>}
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-medium text-[#9ca3af] uppercase tracking-wider">Total Households *</label>
-              <input {...register("totalUnits")} type="number" className="form-input" placeholder="200" />
+              <input {...register("totalUnits")} className="form-input" placeholder="200" inputMode="numeric" />
               {errors.totalUnits && <p className="text-xs text-red-400">{errors.totalUnits.message}</p>}
             </div>
 
