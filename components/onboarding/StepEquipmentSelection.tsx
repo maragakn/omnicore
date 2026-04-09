@@ -296,7 +296,8 @@ export function StepEquipmentSelection({
   const toggleCategory = (cat: string) => {
     setOpenCats((prev) => {
       const next = new Set(prev)
-      next.has(cat) ? next.delete(cat) : next.add(cat)
+      if (next.has(cat)) next.delete(cat)
+      else next.add(cat)
       return next
     })
   }
@@ -309,7 +310,7 @@ export function StepEquipmentSelection({
       <div>
         <h2 className="text-base font-semibold text-white mb-1">Equipment Selection</h2>
         <p className="text-sm text-[#9ca3af]">
-          Based on your gym size, we've pre-selected a recommended setup. Adjust or add items as needed.
+          Based on your gym size, we&apos;ve pre-selected a recommended setup. Adjust or add items as needed.
         </p>
       </div>
 

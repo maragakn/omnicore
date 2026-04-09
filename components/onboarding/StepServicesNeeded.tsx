@@ -38,7 +38,7 @@ export function StepServicesNeeded({ selectedEquipment, onChange, onNext, onBack
       <div>
         <h2 className="text-base font-semibold text-white mb-1">Equipment Upgrade</h2>
         <p className="text-sm text-[#9ca3af]">
-          Select the equipment you'd like to add or upgrade. CultSport will include pricing in the quote.
+          Select the equipment you&apos;d like to add or upgrade. CultSport will include pricing in the quote.
         </p>
       </div>
 
