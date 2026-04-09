@@ -8,6 +8,7 @@ import {
   Settings,
   Activity,
   ClipboardList,
+  Filter,
   type LucideIcon,
 } from "lucide-react"
 
@@ -21,7 +22,9 @@ export interface NavItem {
 
 export const CF_ADMIN_NAV: NavItem[] = [
   { label: "Overview", href: "/cf-admin", icon: LayoutDashboard },
+  { label: "Leads", href: "/cf-admin/leads", icon: Filter },
   { label: "Onboarding", href: "/cf-admin/onboarding", icon: Building2 },
+  { label: "Pricing", href: "/cf-admin/pricing", icon: DollarSign },
   { label: "Trainers", href: "/cf-admin/trainers", icon: Users },
   { label: "Assets", href: "/cf-admin/assets", icon: Wrench },
   { label: "Service Requests", href: "/cf-admin/service-requests", icon: Ticket },

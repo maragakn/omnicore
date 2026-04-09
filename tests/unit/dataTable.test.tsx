@@ -46,7 +46,7 @@ describe("DataTable", () => {
       <DataTable
         columns={columns}
         data={[]}
-        keyExtractor={(r) => r.id}
+        keyExtractor={(r: (typeof rows)[number]) => r.id}
         emptyMessage="No centers found"
       />
     )
@@ -58,7 +58,7 @@ describe("DataTable", () => {
       <DataTable
         columns={columns}
         data={[]}
-        keyExtractor={(r) => r.id}
+        keyExtractor={(r: (typeof rows)[number]) => r.id}
       />
     )
     expect(screen.getByText("No data")).toBeInTheDocument()
