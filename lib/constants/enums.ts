@@ -165,3 +165,56 @@ export const SERVICE_REQUEST_STATUS_BG: Record<ServiceRequestStatus, string> = {
   IN_PROGRESS: "bg-cyan-500/10 border-cyan-500/20",
   RESOLVED: "bg-emerald-500/10 border-emerald-500/20",
 }
+
+// ─── Lead funnel ──────────────────────────────────────────────────────────────
+
+export const LeadStatus = {
+  INVITED: "INVITED",
+  FORM_SUBMITTED: "FORM_SUBMITTED",
+  QUOTE_SENT: "QUOTE_SENT",
+  ACCEPTED: "ACCEPTED",
+  ACTIVE: "ACTIVE",
+  REJECTED: "REJECTED",
+} as const
+export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus]
+
+export const QuoteStatus = {
+  DRAFT: "DRAFT",
+  SENT: "SENT",
+  ACCEPTED: "ACCEPTED",
+  REJECTED: "REJECTED",
+} as const
+export type QuoteStatus = (typeof QuoteStatus)[keyof typeof QuoteStatus]
+
+export const PricingType = {
+  MONTHLY: "MONTHLY",
+  ONE_TIME: "ONE_TIME",
+  ONE_TIME_PLUS_TAKE_RATE: "ONE_TIME_PLUS_TAKE_RATE",
+} as const
+export type PricingType = (typeof PricingType)[keyof typeof PricingType]
+
+export const EquipmentSizeCategory = {
+  SMALL: "SMALL",
+  MEDIUM: "MEDIUM",
+  LARGE: "LARGE",
+} as const
+export type EquipmentSizeCategory =
+  (typeof EquipmentSizeCategory)[keyof typeof EquipmentSizeCategory]
+
+// Maps each module to its pricing type — used in QuoteBuilder and ModuleSelector
+export const MODULE_PRICING_TYPE: Record<CenterModuleKey, PricingType> = {
+  [CenterModuleKey.TRAINERS]: PricingType.MONTHLY,
+  [CenterModuleKey.ASSETS]: PricingType.ONE_TIME,
+  [CenterModuleKey.VENDING_MACHINES]: PricingType.ONE_TIME_PLUS_TAKE_RATE,
+  [CenterModuleKey.MYGATE]: PricingType.MONTHLY,
+  [CenterModuleKey.BRANDING]: PricingType.ONE_TIME,
+}
+
+// Human-readable label shown to RWA Admin on module cards (no amounts)
+export const MODULE_PRICING_LABEL: Record<CenterModuleKey, string> = {
+  [CenterModuleKey.TRAINERS]: "Monthly rate",
+  [CenterModuleKey.ASSETS]: "One-time setup",
+  [CenterModuleKey.VENDING_MACHINES]: "One-time installation + monthly revenue share",
+  [CenterModuleKey.MYGATE]: "Monthly rate",
+  [CenterModuleKey.BRANDING]: "One-time setup",
+}

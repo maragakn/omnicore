@@ -76,6 +76,43 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     className: "bg-[#1f2937]/80 text-[#6b7280] border-[#374151]",
     dotClassName: "bg-[#6b7280]",
   },
+  // Lead funnel status
+  INVITED: {
+    label: "Invited",
+    className: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    dotClassName: "bg-blue-400",
+  },
+  FORM_SUBMITTED: {
+    label: "Form Submitted",
+    className: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+    dotClassName: "bg-cyan-400",
+  },
+  QUOTE_SENT: {
+    label: "Quote Sent",
+    className: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    dotClassName: "bg-amber-400",
+  },
+  REJECTED: {
+    label: "Rejected",
+    className: "bg-red-500/10 text-red-400 border-red-500/20",
+    dotClassName: "bg-red-400",
+  },
+  ACCEPTED: {
+    label: "Accepted",
+    className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    dotClassName: "bg-emerald-400",
+  },
+  // Quote status
+  DRAFT: {
+    label: "Draft",
+    className: "bg-[#1f2937]/80 text-[#9ca3af] border-[#374151]",
+    dotClassName: "bg-[#9ca3af]",
+  },
+  SENT: {
+    label: "Sent",
+    className: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    dotClassName: "bg-amber-400",
+  },
   // Trainer type
   FULLTIME: {
     label: "Full-time",

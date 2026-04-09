@@ -11,6 +11,11 @@ async function main() {
   console.log("🌱 Seeding OmniCore database...")
 
   // ─── Clear existing data ───────────────────────────────────────────────────
+  await prisma.quoteLineItem.deleteMany()
+  await prisma.quote.deleteMany()
+  await prisma.lead.deleteMany()
+  await prisma.servicePricingConfig.deleteMany()
+  await prisma.equipmentRecommendation.deleteMany()
   await prisma.serviceRequest.deleteMany()
   await prisma.footfallEvent.deleteMany()
   await prisma.pTSession.deleteMany()
@@ -580,6 +585,171 @@ async function main() {
   })
 
   console.log("✓ Service requests created")
+
+  // ─── ServicePricingConfig — default rate card ────────────────────────────────
+  await prisma.servicePricingConfig.createMany({
+    data: [
+      {
+        moduleKey: "TRAINERS",
+        pricingType: "MONTHLY",
+        defaultMonthlyFee: 1500000, // ₹15,000/month in paise
+      },
+      {
+        moduleKey: "ASSETS",
+        pricingType: "ONE_TIME",
+        defaultOneTimeFee: 50000000, // ₹5,00,000 one-time in paise
+      },
+      {
+        moduleKey: "VENDING_MACHINES",
+        pricingType: "ONE_TIME_PLUS_TAKE_RATE",
+        defaultOneTimeFee: 5000000, // ₹50,000 installation in paise
+        defaultTakeRatePct: 8.5,
+      },
+      {
+        moduleKey: "MYGATE",
+        pricingType: "MONTHLY",
+        defaultMonthlyFee: 500000, // ₹5,000/month in paise
+      },
+      {
+        moduleKey: "BRANDING",
+        pricingType: "ONE_TIME",
+        defaultOneTimeFee: 2500000, // ₹25,000 one-time in paise
+      },
+    ],
+  })
+
+  // ─── EquipmentRecommendation — lookup table ───────────────────────────────────
+  await prisma.equipmentRecommendation.createMany({
+    data: [
+      {
+        sizeCategory: "SMALL",
+        items: JSON.stringify([
+          { name: "Treadmill", quantity: 2 },
+          { name: "Upright Cycle", quantity: 1 },
+          { name: "Dumbbell Rack (5–25 kg)", quantity: 1 },
+        ]),
+      },
+      {
+        sizeCategory: "MEDIUM",
+        items: JSON.stringify([
+          { name: "Treadmill", quantity: 4 },
+          { name: "Upright Cycle", quantity: 2 },
+          { name: "Elliptical", quantity: 2 },
+          { name: "Free Weight Rack", quantity: 1 },
+          { name: "Resistance Machine", quantity: 3 },
+        ]),
+      },
+      {
+        sizeCategory: "LARGE",
+        items: JSON.stringify([
+          { name: "Commercial Treadmill", quantity: 8 },
+          { name: "Elliptical", quantity: 4 },
+          { name: "Upright Cycle", quantity: 4 },
+          { name: "Rowing Machine", quantity: 2 },
+          { name: "Full Free Weight Suite", quantity: 1 },
+          { name: "Resistance Machine", quantity: 6 },
+          { name: "Functional Training Rig", quantity: 1 },
+          { name: "Boxing Station", quantity: 1 },
+        ]),
+      },
+    ],
+  })
+
+  // ─── Sample leads (for demo) ──────────────────────────────────────────────────
+  // Lead 1: INVITED (not yet acted on)
+  await prisma.lead.create({
+    data: {
+      societyName: "Godrej Emerald",
+      contactName: "Rohit Sharma",
+      contactEmail: "rohit@godrejemerald.in",
+      contactPhone: "9876543210",
+      status: "INVITED",
+      inviteToken: "demo-token-invited-godrej-emerald-001",
+      inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  // Lead 2: FORM_SUBMITTED (RWA filled wizard, CF Admin yet to price)
+  await prisma.lead.create({
+    data: {
+      societyName: "Sobha Dream Acres",
+      contactName: "Priya Nair",
+      contactEmail: "priya@sobhadream.in",
+      contactPhone: "9123456789",
+      status: "FORM_SUBMITTED",
+      inviteToken: "demo-token-submitted-sobha-001",
+      inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      formData: JSON.stringify({
+        name: "Sobha Dream Gym",
+        code: "SOBHA-DRM-01",
+        address: "Sobha Dream Acres, Panathur Road",
+        city: "Bangalore",
+        pincode: "560087",
+        capacity: 60,
+        gymSqFt: 1400,
+        rwaName: "Sobha Dream Acres RWA",
+        totalUnits: 340,
+        contactPersonName: "Priya Nair",
+        contactPersonPhone: "9123456789",
+        contactPersonEmail: "priya@sobhadream.in",
+        selectedModules: ["TRAINERS", "ASSETS", "MYGATE"],
+        trainerIds: [],
+      }),
+    },
+  })
+
+  // Lead 3: QUOTE_SENT (CF Admin sent quote, awaiting RWA sign-off)
+  const lead3 = await prisma.lead.create({
+    data: {
+      societyName: "Brigade Metropolis",
+      contactName: "Anand Kumar",
+      contactEmail: "anand@brigademetro.in",
+      contactPhone: "9988776655",
+      status: "QUOTE_SENT",
+      inviteToken: "demo-token-quotesent-brigade-001",
+      inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      formData: JSON.stringify({
+        name: "Brigade Metropolis Gym",
+        code: "BRIG-MTR-01",
+        address: "Brigade Metropolis, Whitefield",
+        city: "Bangalore",
+        pincode: "560066",
+        capacity: 100,
+        gymSqFt: 2200,
+        rwaName: "Brigade Metropolis RWA",
+        totalUnits: 480,
+        contactPersonName: "Anand Kumar",
+        contactPersonPhone: "9988776655",
+        contactPersonEmail: "anand@brigademetro.in",
+        selectedModules: ["TRAINERS", "ASSETS", "VENDING_MACHINES", "MYGATE"],
+        trainerIds: [],
+      }),
+    },
+  })
+
+  await prisma.quote.create({
+    data: {
+      leadId: lead3.id,
+      status: "SENT",
+      sentAt: new Date(),
+      notes: "Standard pricing applied. Vending take rate negotiable.",
+      lineItems: {
+        create: [
+          { moduleKey: "TRAINERS", pricingType: "MONTHLY", monthlyFee: 1500000 },
+          { moduleKey: "ASSETS", pricingType: "ONE_TIME", oneTimeFee: 50000000 },
+          {
+            moduleKey: "VENDING_MACHINES",
+            pricingType: "ONE_TIME_PLUS_TAKE_RATE",
+            oneTimeFee: 5000000,
+            takeRatePct: 8.5,
+          },
+          { moduleKey: "MYGATE", pricingType: "MONTHLY", monthlyFee: 500000 },
+        ],
+      },
+    },
+  })
+
+  console.log("Seeded: 5 pricing configs, 3 equipment recs, 3 leads, 1 quote")
   console.log("\n✅ Seed complete!")
   console.log(`   Centers: 3 (2 active, 1 onboarding)`)
   console.log(`   Center Modules: seeded per center (Trainers, Assets, MyGate, Branding, VMs)`)
