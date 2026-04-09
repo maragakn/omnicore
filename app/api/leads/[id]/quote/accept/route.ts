@@ -39,6 +39,12 @@ async function registerInCenterService(formData: {
         ownerId: CENTER_SERVICE_USER_ID,
         status: "PRELAUNCH",
         capacity: formData.capacity ?? undefined,
+        // Hidden from Cult consumer app — residents check in via Cult QR from MyGate booking
+        isSaleDisabled: true,
+        meta: {
+          checkInEnabled: true,       // QR-based resident check-in via gymfit API
+          membershipSellable: false,  // No direct Cult membership sales
+        },
       }),
     })
 
