@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import {
@@ -13,9 +14,11 @@ import { ArrowLeftRight, Zap } from "lucide-react"
 interface SidebarProps {
   role: Role
   currentPath: string
+  /** Extra controls above the role switcher (e.g. RWA log out). */
+  endSlot?: ReactNode
 }
 
-export function Sidebar({ role, currentPath }: SidebarProps) {
+export function Sidebar({ role, currentPath, endSlot }: SidebarProps) {
   const navItems = NAV_BY_ROLE[role]
   const roleLabel = ROLE_LABELS[role]
   const switchTarget = ROLE_SWITCH_TARGET[role]
@@ -70,6 +73,10 @@ export function Sidebar({ role, currentPath }: SidebarProps) {
           )
         })}
       </nav>
+
+      {endSlot != null && (
+        <div className="px-3 py-2 border-t border-[#1f2937] shrink-0">{endSlot}</div>
+      )}
 
       {/* ── Role switcher ── */}
       <div className="px-3 pb-5 pt-3 border-t border-[#1f2937]">

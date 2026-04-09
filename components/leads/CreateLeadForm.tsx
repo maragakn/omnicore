@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import { copyToClipboard } from "@/lib/utils/clipboard"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CreateLeadSchema, type CreateLeadInput } from "@/lib/validations/lead"
 
 export function CreateLeadForm() {
   const [inviteLink, setInviteLink] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -53,10 +55,17 @@ export function CreateLeadForm() {
         <div className="bg-[#0a0a0a] rounded-lg p-3 flex items-center gap-3">
           <span className="text-xs text-[#e5e7eb] font-mono flex-1 break-all">{inviteLink}</span>
           <button
-            onClick={() => navigator.clipboard.writeText(inviteLink)}
+            type="button"
+            onClick={async () => {
+              const ok = await copyToClipboard(inviteLink)
+              if (ok) {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+              }
+            }}
             className="text-xs text-[#f97316] hover:text-[#ea6c0c] whitespace-nowrap"
           >
-            Copy
+            {copied ? "Copied" : "Copy"}
           </button>
         </div>
         <button

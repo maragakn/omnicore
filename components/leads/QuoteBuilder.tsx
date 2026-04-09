@@ -190,7 +190,7 @@ export function QuoteBuilder({ leadId, selectedModules, pricingConfigs, selected
               placeholder="e.g. 750000"
             />
             <p className="text-[11px] text-[#6b7280]">
-              Individual module prices will be hidden in the RWA quote — only this total will be shown.
+              RWA still sees a per-service price breakdown; use this field when you want a single agreed lump sum on file (e.g. package deals).
             </p>
           </div>
         )}
@@ -198,9 +198,7 @@ export function QuoteBuilder({ leadId, selectedModules, pricingConfigs, selected
 
       <div className="bg-[#111111] rounded-xl border border-[#1f2937] overflow-hidden">
         <div className="px-6 py-4 border-b border-[#1f2937]">
-          <h2 className="text-sm font-medium text-[#e5e7eb]">
-            {quoteMode === "TOTAL" ? "Modules Included (amounts hidden from RWA)" : "Line Items"}
-          </h2>
+          <h2 className="text-sm font-medium text-[#e5e7eb]">Line Items</h2>
         </div>
 
         <div className="divide-y divide-[#1f2937]">
@@ -290,6 +288,17 @@ interface QuoteLineItemRowProps {
 
 function QuoteLineItemRow({ item, onUpdate, readOnly }: QuoteLineItemRowProps) {
   const label = MODULE_PRICING_LABEL[item.moduleKey as keyof typeof MODULE_PRICING_LABEL] ?? item.moduleKey
+  const showRoOneTime =
+    readOnly &&
+    (item.pricingType === "ONE_TIME" || item.pricingType === "ONE_TIME_PLUS_TAKE_RATE") &&
+    (item.oneTimeFee ?? 0) > 0
+  const showRoMonthly =
+    readOnly &&
+    (item.pricingType === "MONTHLY" || item.pricingType === "ONE_TIME_PLUS_TAKE_RATE") &&
+    (item.monthlyFee ?? 0) > 0
+  const showRoTake =
+    readOnly && item.pricingType === "ONE_TIME_PLUS_TAKE_RATE" && (item.takeRatePct ?? 0) > 0
+  const hasReadOnlyAmounts = showRoOneTime || showRoMonthly || showRoTake
 
   return (
     <div className="px-6 py-4 flex flex-wrap items-center gap-4">
@@ -338,7 +347,18 @@ function QuoteLineItemRow({ item, onUpdate, readOnly }: QuoteLineItemRowProps) {
       )}
 
       {readOnly && (
-        <span className="text-xs text-[#374151] italic">included in total</span>
+        <div className="text-right space-y-0.5 min-w-[140px]">
+          {showRoOneTime && (
+            <p className="text-sm text-[#e5e7eb]">{formatPaise(item.oneTimeFee!)} one-time</p>
+          )}
+          {showRoMonthly && (
+            <p className="text-sm text-[#e5e7eb]">{formatPaise(item.monthlyFee!)}/month</p>
+          )}
+          {showRoTake && (
+            <p className="text-xs text-[#6b7280]">{item.takeRatePct}% revenue share</p>
+          )}
+          {!hasReadOnlyAmounts && <span className="text-xs text-[#6b7280]">—</span>}
+        </div>
       )}
     </div>
   )

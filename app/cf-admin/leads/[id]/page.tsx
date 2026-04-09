@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db/client"
 import { deriveEquipmentCategory } from "@/lib/onboarding/equipment"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { LeadReviewPanel } from "@/components/leads/LeadReviewPanel"
+import { RwaQuoteLinkCard } from "@/components/leads/RwaQuoteLinkCard"
+import { getPublicRwaQuoteUrl } from "@/lib/leads/rwaLinks"
 import { EquipmentRecommendationPanel } from "@/components/leads/EquipmentRecommendationPanel"
 import { QuoteHistoryTimeline } from "@/components/leads/QuoteHistoryTimeline"
 import Link from "next/link"
@@ -28,7 +30,10 @@ export default async function LeadDetailPage({ params }: Props) {
     try { return JSON.parse(lead.formData!) } catch { return null }
   })() : null
 
-  if (formData?.gymSqFt && formData?.totalUnits) {
+  const wantsAssets =
+    Array.isArray(formData?.selectedModules) && formData.selectedModules.includes("ASSETS")
+
+  if (wantsAssets && formData?.gymSqFt && formData?.totalUnits) {
     equipmentCategory = deriveEquipmentCategory(formData.gymSqFt, formData.totalUnits)
     equipmentRecommendation = await prisma.equipmentRecommendation.findUnique({
       where: { sizeCategory: equipmentCategory },
@@ -41,6 +46,14 @@ export default async function LeadDetailPage({ params }: Props) {
     : null
 
   const isRevisionRequested = lead.quote?.status === "REVISION_REQUESTED"
+
+  const showRwaQuoteLink =
+    lead.status === "QUOTE_SENT" &&
+    lead.quote &&
+    (lead.quote.status === "SENT" || lead.quote.status === "REVISION_REQUESTED")
+
+  const rwaQuoteUrl = getPublicRwaQuoteUrl(lead.inviteToken)
+  const showRwaBaseUrlHint = !rwaQuoteUrl.startsWith("http")
 
   return (
     <div className="space-y-6">
@@ -99,7 +112,17 @@ export default async function LeadDetailPage({ params }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {showRwaQuoteLink && lead.quote && (
+        <RwaQuoteLinkCard
+          url={rwaQuoteUrl}
+          quoteStatus={lead.quote.status === "REVISION_REQUESTED" ? "REVISION_REQUESTED" : "SENT"}
+          showBaseUrlHint={showRwaBaseUrlHint}
+        />
+      )}
+
+      <div
+        className={`grid grid-cols-1 gap-6 ${equipmentRecommendation ? "lg:grid-cols-2" : ""}`}
+      >
         <LeadReviewPanel lead={lead} formData={formData} />
         {equipmentRecommendation && (
           <EquipmentRecommendationPanel
@@ -117,12 +140,6 @@ export default async function LeadDetailPage({ params }: Props) {
           >
             Build Quote →
           </Link>
-        </div>
-      )}
-
-      {lead.quote && lead.quote.status === "SENT" && !isRevisionRequested && (
-        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-          <p className="text-sm text-emerald-400">Quote sent — awaiting RWA Admin response.</p>
         </div>
       )}
 

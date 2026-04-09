@@ -6,24 +6,7 @@ import { SectionHeader } from "@/components/shared/SectionHeader"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { BillingCard } from "@/components/rwa/BillingCard"
 import { AmenityUtilizationMetrics } from "@/components/amenity/AmenityUtilizationMetrics"
-
-async function getCenter() {
-  return prisma.center.findFirst({
-    where: { status: { in: ["ACTIVE", "ONBOARDING"] } },
-    include: {
-      modules: { where: { isEnabled: true } },
-      residentialDetails: true,
-      lead: {
-        include: {
-          quote: {
-            include: { lineItems: true },
-          },
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  })
-}
+import { getCenterForRwaSession } from "@/lib/rwa/session"
 
 async function getStats(centerId?: string | null) {
   const now = new Date()
@@ -68,7 +51,7 @@ const MODULE_LABEL: Record<string, string> = {
 }
 
 export default async function RWAAdminDashboardPage() {
-  const center = await getCenter()
+  const { center, lead } = await getCenterForRwaSession()
   const [stats, utilization] = await Promise.all([
     getStats(center?.id),
     center ? getAmenityUtilizationForCenter(center.id) : Promise.resolve(null),
@@ -85,6 +68,12 @@ export default async function RWAAdminDashboardPage() {
           </span>
         }
       />
+
+      {lead.status === "FORM_SUBMITTED" && (
+        <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-sm text-[#9ca3af]">
+          Your details are with CultSport. You&apos;ll be notified when your quote is ready — or check back here after they send pricing.
+        </div>
+      )}
 
       {/* Gym hero card — shown when center exists */}
       {center ? (
@@ -131,7 +120,6 @@ export default async function RWAAdminDashboardPage() {
         </div>
       )}
 
-          {/* Billing card — shown when quote is accepted */}
       {center?.lead?.quote?.status === "ACCEPTED" && (
         <BillingCard
           quote={center.lead.quote}
@@ -143,7 +131,6 @@ export default async function RWAAdminDashboardPage() {
         <AmenityUtilizationMetrics data={utilization} />
       )}
 
-      {/* Live stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Booked Slots" value={stats.liveOccupancy} icon={Activity} accent="cyan" description="Amenity slots · local calendar day" />
         <StatCard

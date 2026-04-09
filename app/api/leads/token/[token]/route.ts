@@ -42,6 +42,7 @@ export async function GET(
       societyName: lead.societyName,
       contactName: lead.contactName,
       contactEmail: lead.contactEmail,
+      contactPhone: lead.contactPhone,
     },
   })
 }
