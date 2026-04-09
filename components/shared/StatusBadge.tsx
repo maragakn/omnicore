@@ -97,6 +97,11 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     className: "bg-red-500/10 text-red-400 border-red-500/20",
     dotClassName: "bg-red-400",
   },
+  ACCEPTED: {
+    label: "Accepted",
+    className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    dotClassName: "bg-emerald-400",
+  },
   // Quote status
   DRAFT: {
     label: "Draft",
