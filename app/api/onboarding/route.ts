@@ -1,25 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db/client"
 import { z } from "zod"
+import { CenterModuleKey } from "@/lib/constants/enums"
+
+const VALID_MODULE_KEYS = [
+  CenterModuleKey.TRAINERS,
+  CenterModuleKey.ASSETS,
+  CenterModuleKey.VENDING_MACHINES,
+  CenterModuleKey.BRANDING,
+  CenterModuleKey.MYGATE,
+] as const
 
 const OnboardingPayloadSchema = z.object({
   name: z.string().min(2),
-  code: z.string().min(3),
+  code: z.string().min(3).max(20).regex(/^[A-Z0-9-]+$/),
   address: z.string().min(5),
   city: z.string().min(2),
   pincode: z.string().regex(/^\d{6}$/),
-  capacity: z.number().int().min(1),
-  gymSqFt: z.number().optional(),
+  capacity: z.number().int().min(1).max(500),
+  gymSqFt: z.number().int().min(100).optional(),
   rwaName: z.string().min(2),
   totalUnits: z.number().int().min(1),
   contactPersonName: z.string().min(2),
-  contactPersonPhone: z.string(),
+  // Match the same Indian mobile regex used on the frontend
+  contactPersonPhone: z.string().regex(/^(\+91\s?)?[6-9]\d{9}$/, "Enter a valid Indian mobile number"),
   contactPersonEmail: z.string().email(),
-  selectedModules: z.array(z.string()),
+  // Restrict to known module keys — prevents garbage from being persisted
+  selectedModules: z.array(z.enum(VALID_MODULE_KEYS)),
   trainerIds: z.array(z.string()).optional(),
   myGateSocietyId: z.string().optional(),
   myGateApiKey: z.string().optional(),
   myGateWebhookUrl: z.string().optional(),
+  // displayName is stored in the BRANDING CenterModule config field, not on Center directly
   displayName: z.string().optional(),
 })
 
@@ -41,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     // Create the center with all related data in a transaction
     const center = await prisma.$transaction(async (tx) => {
-      // 1. Create Center
+      // 1. Create Center (gymSqFt now persisted)
       const center = await tx.center.create({
         data: {
           name: data.name,
@@ -51,6 +63,7 @@ export async function POST(req: NextRequest) {
           city: data.city,
           pincode: data.pincode,
           capacity: data.capacity,
+          gymSqFt: data.gymSqFt ?? null,
         },
       })
 
@@ -67,19 +80,24 @@ export async function POST(req: NextRequest) {
       })
 
       // 3. Center Modules
+      // displayName for BRANDING is stored in the module's config JSON field
       if (data.selectedModules.length > 0) {
         await tx.centerModule.createMany({
           data: data.selectedModules.map((moduleKey) => ({
             centerId: center.id,
             moduleKey,
             isEnabled: true,
+            config:
+              moduleKey === CenterModuleKey.BRANDING && data.displayName
+                ? JSON.stringify({ displayName: data.displayName })
+                : null,
           })),
         })
       }
 
       // 4. MyGate Config (if MYGATE module selected and credentials provided)
       if (
-        data.selectedModules.includes("MYGATE") &&
+        data.selectedModules.includes(CenterModuleKey.MYGATE) &&
         data.myGateSocietyId &&
         data.myGateApiKey
       ) {
