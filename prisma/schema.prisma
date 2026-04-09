@@ -1,0 +1,217 @@
+// SQLite does not support native enums.
+// String fields are used instead; valid values are enforced via Zod and TypeScript enums in lib/constants/enums.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Center {
+  id             String    @id @default(cuid())
+  name           String
+  code           String    @unique
+  // CenterStatus: ACTIVE | ONBOARDING | INACTIVE
+  status         String    @default("ONBOARDING")
+  address        String
+  city           String
+  pincode        String
+  capacity       Int
+  operatingSince DateTime?
+  imageUrl       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  residentialDetails ResidentialDetails?
+  myGateConfig       MyGateConfig?
+  modules            CenterModule[]
+  serviceConfigs     ServiceConfig[]
+  equipmentAssets    EquipmentAsset[]
+  trainerMappings    CenterTrainerMapping[]
+  trainerAttendances TrainerAttendance[]
+  footfallEvents     FootfallEvent[]
+  serviceRequests    ServiceRequest[]
+  ptSessions         PTSession[]
+}
+
+// Tracks which modules/capabilities are enabled for a center.
+// Drives which onboarding steps appear and which CF Admin sections are accessible.
+// CenterModule.moduleKey valid values: TRAINERS | ASSETS | VENDING_MACHINES | BRANDING | MYGATE
+model CenterModule {
+  id        String   @id @default(cuid())
+  centerId  String
+  center    Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  // moduleKey: TRAINERS | ASSETS | VENDING_MACHINES | BRANDING | MYGATE
+  moduleKey String
+  isEnabled Boolean  @default(true)
+  config    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([centerId, moduleKey])
+}
+
+model ResidentialDetails {
+  id                 String   @id @default(cuid())
+  centerId           String   @unique
+  center             Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  rwaName            String
+  totalUnits         Int
+  contactPersonName  String
+  contactPersonPhone String
+  contactPersonEmail String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model MyGateConfig {
+  id           String    @id @default(cuid())
+  centerId     String    @unique
+  center       Center    @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  societyId    String
+  apiKey       String
+  webhookUrl   String?
+  isActive     Boolean   @default(false)
+  lastSyncedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model ServiceConfig {
+  id          String   @id @default(cuid())
+  centerId    String
+  center      Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  serviceName String
+  // ServiceType: MEMBERSHIP | PT | GROUP_CLASS | ADD_ON
+  serviceType String
+  monthlyFee  Float
+  setupFee    Float    @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model EquipmentAsset {
+  id             String    @id @default(cuid())
+  centerId       String
+  center         Center    @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  name           String
+  category       String
+  brand          String?
+  model          String?
+  serialNumber   String?
+  purchasedOn    DateTime?
+  warrantyExpiry DateTime?
+  lastServicedOn DateTime?
+  nextServiceDue DateTime?
+  // AssetCondition: GOOD | FAIR | POOR
+  condition      String    @default("GOOD")
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  serviceRequests ServiceRequest[]
+}
+
+model Trainer {
+  id             String    @id @default(cuid())
+  name           String
+  phone          String
+  email          String?
+  // TrainerType: FULLTIME | PT
+  trainerType    String    @default("FULLTIME")
+  specialization String?
+  certifications String?
+  joinedOn       DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  centerMappings CenterTrainerMapping[]
+  attendances    TrainerAttendance[]
+  ptSessions     PTSession[]
+}
+
+model CenterTrainerMapping {
+  id         String   @id @default(cuid())
+  centerId   String
+  center     Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  trainerId  String
+  trainer    Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  assignedOn DateTime @default(now())
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([centerId, trainerId])
+}
+
+model TrainerAttendance {
+  id        String    @id @default(cuid())
+  centerId  String
+  center    Center    @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  trainerId String
+  trainer   Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  date      DateTime
+  checkIn   DateTime?
+  checkOut  DateTime?
+  // AttendanceSource: MYGATE | OTP | MANUAL
+  source    String    @default("MANUAL")
+  // AttendanceStatus: PRESENT | ABSENT | LATE
+  status    String    @default("PRESENT")
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([centerId, trainerId, date])
+}
+
+model PTSession {
+  id           String   @id @default(cuid())
+  centerId     String
+  center       Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  trainerId    String
+  trainer      Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  sessionDate  DateTime
+  durationMins Int      @default(60)
+  ratePerHour  Float
+  memberName   String?
+  isPaid       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model FootfallEvent {
+  id         String   @id @default(cuid())
+  centerId   String
+  center     Center   @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  // EventType: CHECK_IN | CHECK_OUT
+  eventType  String
+  memberName String?
+  memberId   String?
+  timestamp  DateTime @default(now())
+  source     String   @default("MYGATE")
+  createdAt  DateTime @default(now())
+}
+
+model ServiceRequest {
+  id          String    @id @default(cuid())
+  centerId    String
+  center      Center    @relation(fields: [centerId], references: [id], onDelete: Cascade)
+  assetId     String?
+  asset       EquipmentAsset? @relation(fields: [assetId], references: [id])
+  title       String
+  description String?
+  // ServiceRequestStatus: OPEN | ASSIGNED | IN_PROGRESS | RESOLVED
+  status      String    @default("OPEN")
+  // ServiceRequestPriority: LOW | MEDIUM | HIGH | CRITICAL
+  priority    String    @default("MEDIUM")
+  reportedBy  String?
+  assignedTo  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

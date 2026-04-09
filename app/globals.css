@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
+@theme {
+  /* Fonts */
+  --font-sans: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-dm-mono), "Courier New", monospace;
+  --font-display: var(--font-syne), system-ui, sans-serif;
+
+  /* Brand accent colors */
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-purple-400: #c084fc;
+  --color-purple-500: #a855f7;
+  --color-purple-600: #9333ea;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-red-400: #f87171;
+  --color-red-500: #ef4444;
+
+  /* Surface palette */
+  --color-surface-base: #0a0d14;
+  --color-surface-card: #111827;
+  --color-surface-elevated: #1a2235;
+  --color-surface-border: #1f2937;
+  --color-surface-hover: #1e2a3a;
+
+  /* Text palette */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+
+  /* Sidebar */
+  --color-sidebar-bg: #0d1117;
+  --color-sidebar-border: #1f2937;
+  --color-sidebar-item-hover: #1a2235;
+  --color-sidebar-item-active: #1e3a4a;
+}
+
+/* ─── Base reset ──────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0a0d14;
+  color: #f9fafb;
+  min-height: 100vh;
+  font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* ─── Scrollbar styling ───────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* ─── Typography utilities ────────────────────────────────────────────────── */
+
+.font-display {
+  font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+.font-mono-metric {
+  font-family: var(--font-dm-mono), monospace;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Focus ring ──────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
 }
