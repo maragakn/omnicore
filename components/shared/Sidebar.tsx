@@ -30,33 +30,20 @@ export function Sidebar({ role, currentPath }: SidebarProps) {
 
   return (
     <aside className="flex flex-col h-screen w-60 shrink-0 border-r border-[#1f2937] bg-[#0d1117]">
-      {/* ── Brand lockup: mark + wordmark in one row (fits 15rem sidebar) ── */}
-      <div className="border-b border-[#1f2937] px-4 py-4">
+      {/* ── Brand: Logo1 only ── */}
+      <div className="border-b border-[#1f2937] px-5 py-5">
         <Link
           href={brandHref}
-          className="group flex items-center gap-3 rounded-lg p-1 -m-1 outline-none ring-cyan-500/40 transition-colors hover:bg-white/[0.03] focus-visible:ring-2"
+          className="inline-block outline-none ring-cyan-500/40 rounded-md transition-opacity hover:opacity-90 focus-visible:ring-2"
         >
-          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#111827]/80 ring-1 ring-white/[0.06]">
-            <Image
-              src="/brand/omnicore-mark.png"
-              alt=""
-              width={36}
-              height={36}
-              className="h-8 w-8 object-contain"
-              priority
-              sizes="36px"
-            />
-          </span>
-          <span className="relative flex min-h-[2.25rem] min-w-0 flex-1 items-center">
-            <Image
-              src="/brand/omnicore-fullname.png"
-              alt="OmniCore"
-              width={220}
-              height={48}
-              className="h-9 max-h-10 w-full object-contain object-left"
-              sizes="(max-width: 240px) 168px, 200px"
-            />
-          </span>
+          <Image
+            src="/brand/omnicore-mark.png"
+            alt="OmniCore"
+            width={160}
+            height={48}
+            className="h-10 w-auto max-w-[200px] object-contain object-left"
+            priority
+          />
         </Link>
       </div>
 
