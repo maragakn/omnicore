@@ -75,6 +75,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const checkInTime = new Date()
+  await prisma.amenityBooking.updateMany({
+    where: { id: bookingId, attendedAt: null },
+    data: { attendedAt: checkInTime },
+  })
+
   return NextResponse.json({
     allowed: true,
     bookingId: booking.id,
@@ -82,5 +88,6 @@ export async function POST(req: NextRequest) {
     memberName: booking.memberName,
     memberFlat: booking.memberFlat,
     slotHour: booking.slotHour,
+    attendedAt: checkInTime.toISOString(),
   })
 }

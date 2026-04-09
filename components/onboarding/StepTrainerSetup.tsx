@@ -42,7 +42,8 @@ export function StepTrainerSetup({ data, onChange, onNext, onBack, availableTrai
         {availableTrainers.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#1f2937] p-8 text-center">
             <p className="text-sm text-[#6b7280]">
-              No trainers in the system yet. Add trainers first from the Trainers section.
+              No trainers in the roster yet. Add hiring candidates under CF Admin → Trainers → Hiring
+              pipeline, or create roster staff so they appear under Available to map.
             </p>
           </div>
         ) : (

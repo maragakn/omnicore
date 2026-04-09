@@ -1,10 +1,11 @@
-import { Building2, Users, Wrench, Ticket, TrendingUp, ChevronRight, IndianRupee } from "lucide-react"
+import Link from "next/link"
+import { Building2, DollarSign, Filter, Users, Wrench, Ticket, ChevronRight } from "lucide-react"
 import { prisma } from "@/lib/db/client"
 import { StatCard } from "@/components/shared/StatCard"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { CenterQuoteStatusCard } from "@/components/leads/CenterQuoteStatusCard"
-import Link from "next/link"
 import { formatPaise } from "@/lib/leads/quote"
+import { getAmenityUtilizationMapForCenters } from "@/lib/amenity/utilization"
 
 function quoteTotal(q: { quoteMode: string; totalAmount: number | null; lineItems: { oneTimeFee: number | null; monthlyFee: number | null }[] }) {
   if (q.quoteMode === "TOTAL") return { oneTime: q.totalAmount ?? 0, monthly: 0 }
@@ -15,13 +16,39 @@ function quoteTotal(q: { quoteMode: string; totalAmount: number | null; lineItem
 }
 
 async function getStats() {
-  const [activeCenters, mappedTrainers, trackedAssets, openRequests] = await Promise.all([
+  const [
+    activeCenters,
+    mappedTrainers,
+    trackedAssets,
+    openRequests,
+    trainerPipelineCount,
+    trainersOnBench,
+    l0EnrollmentCount,
+  ] = await Promise.all([
     prisma.center.count({ where: { status: "ACTIVE" } }),
     prisma.centerTrainerMapping.count({ where: { isActive: true } }),
     prisma.equipmentAsset.count(),
-    prisma.serviceRequest.count({ where: { status: { in: ["OPEN", "ASSIGNED", "IN_PROGRESS"] } } }),
+    prisma.serviceRequest.count({
+      where: { status: { in: ["OPEN", "ASSIGNED", "IN_PROGRESS"] } },
+    }),
+    prisma.trainerOnboarding.count(),
+    prisma.trainer.count({
+      where: {
+        isActive: true,
+        centerMappings: { none: { isActive: true } },
+      },
+    }),
+    prisma.trainerL0Training.count(),
   ])
-  return { activeCenters, mappedTrainers, trackedAssets, openRequests }
+  return {
+    activeCenters,
+    mappedTrainers,
+    trackedAssets,
+    openRequests,
+    trainerPipelineCount,
+    trainersOnBench,
+    l0EnrollmentCount,
+  }
 }
 
 async function getCentersWithLeads() {
@@ -46,11 +73,40 @@ async function getCentersWithLeads() {
   return { centers, pipelineLeads }
 }
 
+const WORKSPACE_LINKS = [
+  {
+    href: "/cf-admin/leads",
+    label: "Lead pipeline",
+    description: "Society invites, quotes, acceptance",
+    icon: Filter,
+  },
+  {
+    href: "/cf-admin/onboarding",
+    label: "Center onboarding",
+    description: "RWA setup & equipment",
+    icon: Building2,
+  },
+  {
+    href: "/cf-admin/pricing",
+    label: "Pricing",
+    description: "Service module pricing",
+    icon: DollarSign,
+  },
+  {
+    href: "/cf-admin/trainers",
+    label: "Trainers",
+    description: "Hiring pipeline · bench · center assignments",
+    icon: Users,
+  },
+] as const
+
 export default async function CFAdminOverviewPage() {
   const [stats, { centers, pipelineLeads }] = await Promise.all([
     getStats(),
     getCentersWithLeads(),
   ])
+
+  const amenityUtilByCenter = await getAmenityUtilizationMapForCenters(centers.map((c) => c.id))
 
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -81,8 +137,8 @@ export default async function CFAdminOverviewPage() {
   const legacyCenterCount = legacyCenters.length
 
   // ── Combined lifetime ──────────────────────────────────────────────────────
-  const lifetimeRevenue = quoteFunnelOneTime  // one-time setup from quote funnel
-  const lifetimeMonthly = quoteFunnelMonthly + legacyMonthly  // all recurring
+  const lifetimeRevenue = quoteFunnelOneTime // one-time setup from quote funnel
+  const lifetimeMonthly = quoteFunnelMonthly + legacyMonthly // all recurring
 
   // Pipeline estimated revenue — SENT quotes not yet accepted
   const allPipelineQuotes = [
@@ -109,9 +165,8 @@ export default async function CFAdminOverviewPage() {
           description={stats.openRequests > 0 ? "needs attention" : "all clear"} />
       </div>
 
-      {/* Revenue row — 3 columns */}
+      {/* Revenue row — 3 columns (from quote negotiation / billing) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Billed this month */}
         <div className="rounded-xl border border-[#1f2937] bg-[#111827] px-5 py-4">
           <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">
             Billed This Month
@@ -124,7 +179,6 @@ export default async function CFAdminOverviewPage() {
           </p>
         </div>
 
-        {/* Lifetime revenue */}
         <div className="rounded-xl border border-[#f97316]/20 bg-[#f97316]/5 px-5 py-4">
           <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">
             Lifetime Revenue
@@ -151,7 +205,6 @@ export default async function CFAdminOverviewPage() {
           </div>
         </div>
 
-        {/* Pipeline estimate */}
         <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-5 py-4">
           <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider mb-1">
             Pipeline Estimate
@@ -170,6 +223,35 @@ export default async function CFAdminOverviewPage() {
         </div>
       </div>
 
+      <div className="mb-4">
+        <h2 className="text-sm font-semibold text-[#e5e7eb] mb-3">Workspaces</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+          {WORKSPACE_LINKS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group rounded-xl border border-[#1f2937] bg-[#111827] p-4 hover:border-cyan-500/35 hover:bg-[#141c2e] transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex items-center justify-center w-9 h-9 rounded-lg border border-[#374151] bg-[#0d1117] text-cyan-400 group-hover:border-cyan-500/30 shrink-0">
+                  <item.icon className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-white">{item.label}</p>
+                  <p className="text-xs text-[#6b7280] mt-0.5 leading-snug">{item.description}</p>
+                  {item.href === "/cf-admin/trainers" && (
+                    <p className="text-[11px] text-[#9ca3af] mt-2 tabular-nums leading-relaxed">
+                      Hiring {stats.trainerPipelineCount} · L0 {stats.l0EnrollmentCount} · Bench{" "}
+                      {stats.trainersOnBench}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Centers */}
       {centers.length > 0 && (
         <section>
@@ -181,7 +263,11 @@ export default async function CFAdminOverviewPage() {
           </div>
           <div className="space-y-2">
             {centers.map((center) => (
-              <CenterQuoteStatusCard key={center.id} center={center} />
+              <CenterQuoteStatusCard
+                key={center.id}
+                center={center}
+                amenityUtil={amenityUtilByCenter[center.id]}
+              />
             ))}
           </div>
         </section>

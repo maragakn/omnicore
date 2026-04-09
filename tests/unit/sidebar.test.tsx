@@ -4,9 +4,9 @@ import { Sidebar } from "@/components/shared/Sidebar"
 
 describe("Sidebar", () => {
   describe("CF Admin role", () => {
-    it("renders the OmniCore brand logo", () => {
+    it("renders the OmniCore brand name", () => {
       render(<Sidebar role="cf-admin" currentPath="/cf-admin" />)
-      expect(screen.getByAltText("OmniCore")).toBeInTheDocument()
+      expect(screen.getByText("OmniCore")).toBeInTheDocument()
     })
 
     it("renders all CF Admin nav items", () => {

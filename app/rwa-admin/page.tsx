@@ -1,9 +1,11 @@
 import { Activity, Users, Wrench, Ticket, Building2, MapPin } from "lucide-react"
 import { prisma } from "@/lib/db/client"
+import { getAmenityUtilizationForCenter } from "@/lib/amenity/utilization"
 import { StatCard } from "@/components/shared/StatCard"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { BillingCard } from "@/components/rwa/BillingCard"
+import { AmenityUtilizationMetrics } from "@/components/amenity/AmenityUtilizationMetrics"
 
 async function getCenter() {
   return prisma.center.findFirst({
@@ -23,22 +25,35 @@ async function getCenter() {
   })
 }
 
-async function getStats() {
+async function getStats(centerId?: string | null) {
   const now = new Date()
   const startOfDay = new Date(now)
   startOfDay.setHours(0, 0, 0, 0)
   const endOfDay = new Date(startOfDay)
   endOfDay.setDate(endOfDay.getDate() + 1)
 
+  const bookingWhere = {
+    status: "BOOKED" as const,
+    slotDate: { gte: startOfDay, lt: endOfDay },
+    ...(centerId ? { centerId } : {}),
+  }
+  const trainerWhere = {
+    date: { gte: startOfDay },
+    status: "PRESENT" as const,
+    checkIn: { not: null } as const,
+    checkOut: null,
+    ...(centerId ? { centerId } : {}),
+  }
+
   const [liveOccupancy, trainersIn, assetAlerts, openRequests] = await Promise.all([
-    prisma.amenityBooking.count({
-      where: { status: "BOOKED", slotDate: { gte: startOfDay, lt: endOfDay } },
+    prisma.amenityBooking.count({ where: bookingWhere }),
+    prisma.trainerAttendance.count({ where: trainerWhere }),
+    prisma.equipmentAsset.count({
+      where: centerId ? { centerId, condition: { in: ["FAIR", "POOR"] } } : { condition: { in: ["FAIR", "POOR"] } },
     }),
-    prisma.trainerAttendance.count({
-      where: { date: { gte: startOfDay }, status: "PRESENT", checkIn: { not: null }, checkOut: null },
+    prisma.serviceRequest.count({
+      where: centerId ? { centerId, status: { in: ["OPEN", "ASSIGNED"] } } : { status: { in: ["OPEN", "ASSIGNED"] } },
     }),
-    prisma.equipmentAsset.count({ where: { condition: { in: ["FAIR", "POOR"] } } }),
-    prisma.serviceRequest.count({ where: { status: { in: ["OPEN", "ASSIGNED"] } } }),
   ])
 
   return { liveOccupancy, trainersIn, assetAlerts, openRequests }
@@ -53,7 +68,11 @@ const MODULE_LABEL: Record<string, string> = {
 }
 
 export default async function RWAAdminDashboardPage() {
-  const [center, stats] = await Promise.all([getCenter(), getStats()])
+  const center = await getCenter()
+  const [stats, utilization] = await Promise.all([
+    getStats(center?.id),
+    center ? getAmenityUtilizationForCenter(center.id) : Promise.resolve(null),
+  ])
 
   return (
     <div className="p-8 space-y-6">
@@ -120,10 +139,20 @@ export default async function RWAAdminDashboardPage() {
         />
       )}
 
+      {center && utilization && (
+        <AmenityUtilizationMetrics data={utilization} />
+      )}
+
       {/* Live stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Booked Slots" value={stats.liveOccupancy} icon={Activity} accent="cyan" description="amenity bookings today" />
-        <StatCard label="Trainers Active" value={stats.trainersIn} icon={Users} accent="emerald" />
+        <StatCard label="Booked Slots" value={stats.liveOccupancy} icon={Activity} accent="cyan" description="Amenity slots · local calendar day" />
+        <StatCard
+          label="Trainers on floor"
+          value={stats.trainersIn}
+          icon={Users}
+          accent="emerald"
+          description="Today · checked in, not clocked out"
+        />
         <StatCard label="Asset Alerts" value={stats.assetAlerts} icon={Wrench} accent={stats.assetAlerts > 0 ? "amber" : "emerald"} description={stats.assetAlerts > 0 ? "fair or poor condition" : "all green"} />
         <StatCard label="Open Requests" value={stats.openRequests} icon={Ticket} accent={stats.openRequests > 0 ? "red" : "emerald"} description={stats.openRequests > 0 ? "needs attention" : "all clear"} />
       </div>

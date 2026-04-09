@@ -6,6 +6,8 @@ import { StatusBadge } from "@/components/shared/StatusBadge"
 import { formatPaise } from "@/lib/leads/quote"
 import { parseHistory, ACTION_LABEL, ACTION_DOT } from "@/lib/leads/quoteHistory"
 import Link from "next/link"
+import type { CenterUtilization } from "@/lib/amenity/utilization"
+import { AmenityUtilizationMetrics } from "@/components/amenity/AmenityUtilizationMetrics"
 
 interface LineItem {
   moduleKey: string
@@ -69,7 +71,13 @@ function quoteStatusLabel(quoteStatus: string | undefined, revisionRound: number
   return labels[quoteStatus] ?? quoteStatus
 }
 
-export function CenterQuoteStatusCard({ center }: { center: Center }) {
+export function CenterQuoteStatusCard({
+  center,
+  amenityUtil,
+}: {
+  center: Center
+  amenityUtil?: CenterUtilization
+}) {
   const [expanded, setExpanded] = useState(false)
   const quote = center.lead?.quote
   const history = parseHistory(quote?.historyJson)
@@ -106,6 +114,11 @@ export function CenterQuoteStatusCard({ center }: { center: Center }) {
             {center.gymSqFt && ` · ${center.gymSqFt.toLocaleString()} sqft`}
             {center.residentialDetails && ` · ${center.residentialDetails.totalUnits.toLocaleString()} units`}
           </p>
+          {amenityUtil && (
+            <div className="mt-1.5">
+              <AmenityUtilizationMetrics data={amenityUtil} compact />
+            </div>
+          )}
         </div>
 
         {/* Quote status dot + label / legacy active badge */}

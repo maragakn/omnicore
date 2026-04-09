@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/db/client"
+import { getAmenityUtilizationForCenter } from "@/lib/amenity/utilization"
+import { AmenityUtilizationMetrics } from "@/components/amenity/AmenityUtilizationMetrics"
 import { CATEGORY_DISPLAY_NAMES } from "@/lib/equipment/catalog"
 import { UpgradeAdCard } from "@/components/equipment/UpgradeAdCard"
 import { BillingCard } from "@/components/rwa/BillingCard"
@@ -75,10 +77,11 @@ export default async function CFAdminCenterDetailPage({ params }: Props) {
   const startOfDay = new Date(now); startOfDay.setHours(0, 0, 0, 0)
   const endOfDay = new Date(startOfDay); endOfDay.setDate(endOfDay.getDate() + 1)
 
-  const [bookings, trainersIn, openSRs] = await Promise.all([
+  const [bookings, trainersIn, openSRs, amenityUtilization] = await Promise.all([
     prisma.amenityBooking.count({ where: { centerId, status: "BOOKED", slotDate: { gte: startOfDay, lt: endOfDay } } }),
     prisma.trainerAttendance.count({ where: { centerId, date: { gte: startOfDay }, status: "PRESENT", checkIn: { not: null }, checkOut: null } }),
     prisma.serviceRequest.count({ where: { centerId, status: { in: ["OPEN", "ASSIGNED"] } } }),
+    getAmenityUtilizationForCenter(centerId),
   ])
 
   const overdueAssets = center.equipmentAssets.filter(
@@ -154,11 +157,19 @@ export default async function CFAdminCenterDetailPage({ params }: Props) {
 
       {/* Live stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Bookings Today" value={bookings} icon={Activity} accent="cyan" />
-        <StatCard label="Trainers Active" value={trainersIn} icon={Users} accent="emerald" />
+        <StatCard label="Bookings Today" value={bookings} icon={Activity} accent="cyan" description="Amenity slots · local calendar day" />
+        <StatCard
+          label="Trainers on floor"
+          value={trainersIn}
+          icon={Users}
+          accent="emerald"
+          description="Today · checked in, not clocked out"
+        />
         <StatCard label="Asset Alerts" value={overdueAssets} icon={Wrench} accent={overdueAssets > 0 ? "amber" : "emerald"} />
         <StatCard label="Open Tickets" value={openSRs} icon={Ticket} accent={openSRs > 0 ? "red" : "emerald"} />
       </div>
+
+      <AmenityUtilizationMetrics data={amenityUtilization} />
 
       {/* Assets */}
       {center.equipmentAssets.length > 0 && (

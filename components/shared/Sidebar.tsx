@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import {
@@ -9,16 +8,11 @@ import {
   ROLE_SWITCH_TARGET,
   type Role,
 } from "@/lib/constants/navigation"
-import { ArrowLeftRight } from "lucide-react"
+import { ArrowLeftRight, Zap } from "lucide-react"
 
 interface SidebarProps {
   role: Role
   currentPath: string
-}
-
-const ROLE_HOME: Record<Role, string> = {
-  "cf-admin": "/cf-admin",
-  "rwa-admin": "/rwa-admin",
 }
 
 export function Sidebar({ role, currentPath }: SidebarProps) {
@@ -26,25 +20,16 @@ export function Sidebar({ role, currentPath }: SidebarProps) {
   const roleLabel = ROLE_LABELS[role]
   const switchTarget = ROLE_SWITCH_TARGET[role]
   const isRwaAdmin = role === "rwa-admin"
-  const brandHref = ROLE_HOME[role]
 
   return (
     <aside className="flex flex-col h-screen w-60 shrink-0 border-r border-[#1f2937] bg-[#0d1117]">
-      {/* ── Brand: Logo1 only ── */}
-      <div className="border-b border-[#1f2937] px-5 py-5">
-        <Link
-          href={brandHref}
-          className="inline-block outline-none ring-cyan-500/40 rounded-md transition-opacity hover:opacity-90 focus-visible:ring-2"
-        >
-          <Image
-            src="/brand/omnicore-mark.png"
-            alt="OmniCore"
-            width={160}
-            height={48}
-            className="h-10 w-auto max-w-[200px] object-contain object-left"
-            priority
-          />
-        </Link>
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1f2937]">
+        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30">
+          <Zap className="w-4 h-4 text-cyan-400" />
+        </div>
+        <span className="font-display text-[15px] font-bold tracking-tight text-white">
+          OmniCore
+        </span>
       </div>
 
       {/* ── Role pill ── */}
