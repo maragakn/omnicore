@@ -82,28 +82,34 @@ export function PricingConfigTable({ configs }: Props) {
               <td className="px-6 py-4 text-sm text-[#6b7280]">{config.pricingType}</td>
               <td className="px-6 py-4">
                 {config.pricingType !== "MONTHLY" ? (
-                  <input
-                    type="number"
-                    className="form-input w-28 text-sm"
-                    value={(config.defaultOneTimeFee ?? 0) / 100}
-                    onChange={(e) =>
-                      updateLocal(config.moduleKey, "defaultOneTimeFee", Math.round(parseFloat(e.target.value || "0") * 100))
-                    }
-                  />
+                  <div className="space-y-1">
+                    <input
+                      type="number"
+                      className="form-input w-28 text-sm"
+                      value={(config.defaultOneTimeFee ?? 0) / 100}
+                      onChange={(e) =>
+                        updateLocal(config.moduleKey, "defaultOneTimeFee", Math.round(parseFloat(e.target.value || "0") * 100))
+                      }
+                    />
+                    <p className="text-xs text-[#6b7280]">{formatPaise(config.defaultOneTimeFee ?? 0)}</p>
+                  </div>
                 ) : (
                   <span className="text-[#6b7280]">—</span>
                 )}
               </td>
               <td className="px-6 py-4">
                 {config.pricingType !== "ONE_TIME" ? (
-                  <input
-                    type="number"
-                    className="form-input w-28 text-sm"
-                    value={(config.defaultMonthlyFee ?? 0) / 100}
-                    onChange={(e) =>
-                      updateLocal(config.moduleKey, "defaultMonthlyFee", Math.round(parseFloat(e.target.value || "0") * 100))
-                    }
-                  />
+                  <div className="space-y-1">
+                    <input
+                      type="number"
+                      className="form-input w-28 text-sm"
+                      value={(config.defaultMonthlyFee ?? 0) / 100}
+                      onChange={(e) =>
+                        updateLocal(config.moduleKey, "defaultMonthlyFee", Math.round(parseFloat(e.target.value || "0") * 100))
+                      }
+                    />
+                    <p className="text-xs text-[#6b7280]">{formatPaise(config.defaultMonthlyFee ?? 0)}</p>
+                  </div>
                 ) : (
                   <span className="text-[#6b7280]">—</span>
                 )}

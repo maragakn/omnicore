@@ -86,6 +86,7 @@ export function QuoteBuilder({ leadId, selectedModules, pricingConfigs, existing
       router.refresh()
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong")
+      throw e // re-throw so callers like handleSend can abort
     } finally {
       setLoading(false)
     }
