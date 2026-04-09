@@ -1,11 +1,13 @@
 import { z } from "zod"
 
+import { CenterModuleKey } from "@/lib/constants/enums"
+
 const VALID_MODULE_KEYS = [
-  "TRAINERS",
-  "ASSETS",
-  "VENDING_MACHINES",
-  "BRANDING",
-  "MYGATE",
+  CenterModuleKey.TRAINERS,
+  CenterModuleKey.ASSETS,
+  CenterModuleKey.VENDING_MACHINES,
+  CenterModuleKey.BRANDING,
+  CenterModuleKey.MYGATE,
 ] as const
 
 const VALID_PRICING_TYPES = [
