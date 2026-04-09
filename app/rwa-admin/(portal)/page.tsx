@@ -6,7 +6,25 @@ import { SectionHeader } from "@/components/shared/SectionHeader"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { BillingCard } from "@/components/rwa/BillingCard"
 import { AmenityUtilizationMetrics } from "@/components/amenity/AmenityUtilizationMetrics"
-import { getCenterForRwaSession } from "@/lib/rwa/session"
+import { OmniMascot } from "@/components/shared/OmniMascot"
+
+async function getCenter() {
+  return prisma.center.findFirst({
+    where: { status: { in: ["ACTIVE", "ONBOARDING"] } },
+    include: {
+      modules: { where: { isEnabled: true } },
+      residentialDetails: true,
+      lead: {
+        include: {
+          quote: {
+            include: { lineItems: true },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  })
+}
 
 async function getStats(centerId?: string | null) {
   const now = new Date()
@@ -51,7 +69,7 @@ const MODULE_LABEL: Record<string, string> = {
 }
 
 export default async function RWAAdminDashboardPage() {
-  const { center, lead } = await getCenterForRwaSession()
+  const center = await getCenter()
   const [stats, utilization] = await Promise.all([
     getStats(center?.id),
     center ? getAmenityUtilizationForCenter(center.id) : Promise.resolve(null),
@@ -59,21 +77,22 @@ export default async function RWAAdminDashboardPage() {
 
   return (
     <div className="p-8 space-y-6">
-      <SectionHeader
-        title="Live Dashboard"
-        description="Live footfall, trainer attendance, asset health, and facility status."
-        badge={
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 tracking-wide">
+      {/* RWA Welcome banner */}
+      <div className="relative rounded-2xl overflow-hidden border border-cyan-500/10 bg-gradient-to-r from-[#0d1117] via-cyan-950/20 to-[#0d1117] px-8 py-6">
+        <div className="absolute right-0 bottom-0 h-full w-56 pointer-events-none select-none flex items-end justify-end">
+          <OmniMascot variant="empty" size="xl" className="translate-y-4 translate-x-4 opacity-60" />
+        </div>
+        <div className="relative z-10">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-cyan-500 mb-1">RWA Admin</p>
+          <h1 className="text-2xl font-display font-bold text-white mb-1">Live Dashboard</h1>
+          <p className="text-sm text-[#6b7280]">
+            Live footfall, trainer attendance, asset health, and facility status.
+          </p>
+          <span className="mt-2 inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 tracking-wide">
             READ ONLY
           </span>
-        }
-      />
-
-      {lead.status === "FORM_SUBMITTED" && (
-        <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-sm text-[#9ca3af]">
-          Your details are with CultSport. You&apos;ll be notified when your quote is ready — or check back here after they send pricing.
         </div>
-      )}
+      </div>
 
       {/* Gym hero card — shown when center exists */}
       {center ? (
@@ -120,7 +139,7 @@ export default async function RWAAdminDashboardPage() {
         </div>
       )}
 
-      {/* Billing card — shown when quote is accepted */}
+          {/* Billing card — shown when quote is accepted */}
       {center?.lead?.quote?.status === "ACCEPTED" && (
         <BillingCard
           quote={center.lead.quote}

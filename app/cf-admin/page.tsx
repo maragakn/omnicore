@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/shared/SectionHeader"
 import { CenterQuoteStatusCard } from "@/components/leads/CenterQuoteStatusCard"
 import { formatPaise } from "@/lib/leads/quote"
 import { getAmenityUtilizationMapForCenters } from "@/lib/amenity/utilization"
+import { OmniMascot } from "@/components/shared/OmniMascot"
 
 function quoteTotal(q: { quoteMode: string; totalAmount: number | null; lineItems: { oneTimeFee: number | null; monthlyFee: number | null }[] }) {
   if (q.quoteMode === "TOTAL") return { oneTime: q.totalAmount ?? 0, monthly: 0 }
@@ -151,10 +152,19 @@ export default async function CFAdminOverviewPage() {
 
   return (
     <div className="p-8 space-y-8">
-      <SectionHeader
-        title="Operations Hub"
-        description="Manage centers, trainers, assets, and service workflows across all facilities."
-      />
+      {/* Hero banner with mascot */}
+      <div className="relative rounded-2xl overflow-hidden border border-[#1f2937] bg-gradient-to-r from-[#0d1117] via-[#111827] to-[#0d1117] px-8 py-6">
+        <div className="absolute right-0 bottom-0 h-full w-64 pointer-events-none select-none flex items-end justify-end">
+          <OmniMascot variant="success" size="xl" className="translate-y-4 translate-x-4 opacity-70" />
+        </div>
+        <div className="relative z-10 max-w-lg">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-cyan-500 mb-1">CF Admin</p>
+          <h1 className="text-2xl font-display font-bold text-white mb-1">Operations Hub</h1>
+          <p className="text-sm text-[#6b7280]">
+            Manage centers, trainers, assets, and service workflows across all facilities.
+          </p>
+        </div>
+      </div>
 
       {/* KPI stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

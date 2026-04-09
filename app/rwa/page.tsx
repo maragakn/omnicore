@@ -2,6 +2,7 @@ import { FootfallCard } from "@/components/dashboard/FootfallCard"
 import { BookingFeed } from "@/components/dashboard/BookingFeed"
 import { TrainerAttendanceCard } from "@/components/dashboard/TrainerAttendanceCard"
 import { prisma } from "@/lib/db/client"
+import { OmniMascot } from "@/components/shared/OmniMascot"
 
 export default async function RWADashboard() {
   const center = await prisma.center.findFirst({
@@ -11,8 +12,9 @@ export default async function RWADashboard() {
 
   if (!center) {
     return (
-      <div className="flex items-center justify-center h-64 text-[#6b7280]">
-        No active center found.
+      <div className="flex flex-col items-center justify-center h-64 gap-3">
+        <OmniMascot variant="empty" size="lg" />
+        <p className="text-sm text-[#9ca3af]">No active center found</p>
       </div>
     )
   }

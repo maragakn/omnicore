@@ -90,6 +90,7 @@ All dependencies are declared in `package.json` and locked in `package-lock.json
 | Command | What it does |
 |---|---|
 | `npm run dev` | Start dev server at `localhost:3000` with hot reload |
+| `npm run dev:reset` | Kill any process on `3000` and start dev server on `localhost:3000` |
 | `npm run build` | Production build (runs type checks) |
 | `npm start` | Serve the production build |
 | `npm test` | Run all unit tests once |
@@ -215,6 +216,18 @@ npx prisma generate   # regenerate client after schema changes
 ```
 
 **Port 3000 already in use**
+```bash
+lsof -ti:3000 | xargs kill
+npm run dev
+```
+
+**`localhost:3000` intermittently unreachable after `npm run dev`**
+The dev script now pins Next.js to `localhost:3000` (explicit hostname + port) to avoid network-interface detection crashes on some macOS setups. Quick recovery:
+```bash
+npm run dev:reset
+```
+
+Equivalent manual steps:
 ```bash
 lsof -ti:3000 | xargs kill
 npm run dev
