@@ -36,6 +36,7 @@ model Center {
   footfallEvents     FootfallEvent[]
   serviceRequests    ServiceRequest[]
   ptSessions         PTSession[]
+  lead               Lead?
 }
 
 // Tracks which modules/capabilities are enabled for a center.
@@ -215,4 +216,60 @@ model ServiceRequest {
   resolvedAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Lead {
+  id              String   @id @default(cuid())
+  societyName     String
+  contactName     String
+  contactEmail    String
+  contactPhone    String?
+  status          String   @default("INVITED")
+  inviteToken     String   @unique
+  inviteExpiresAt DateTime
+  formData        String?
+  centerId        String?  @unique
+  center          Center?  @relation(fields: [centerId], references: [id])
+  quote           Quote?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Quote {
+  id         String          @id @default(cuid())
+  leadId     String          @unique
+  lead       Lead            @relation(fields: [leadId], references: [id])
+  status     String          @default("DRAFT")
+  notes      String?
+  sentAt     DateTime?
+  acceptedAt DateTime?
+  lineItems  QuoteLineItem[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model QuoteLineItem {
+  id          String @id @default(cuid())
+  quoteId     String
+  quote       Quote  @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  moduleKey   String
+  pricingType String
+  oneTimeFee  Int?
+  monthlyFee  Int?
+  takeRatePct Float?
+}
+
+model ServicePricingConfig {
+  id                 String  @id @default(cuid())
+  moduleKey          String  @unique
+  pricingType        String
+  defaultOneTimeFee  Int?
+  defaultMonthlyFee  Int?
+  defaultTakeRatePct Float?
+}
+
+model EquipmentRecommendation {
+  id           String @id @default(cuid())
+  sizeCategory String @unique
+  items        String
 }
