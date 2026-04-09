@@ -67,14 +67,24 @@ export function QuoteBuilder({ leadId, selectedModules, pricingConfigs, selected
 
   const configByModule = Object.fromEntries(pricingConfigs.map((c) => [c.moduleKey, c]))
 
+  // Compute catalog minimum for ASSETS: sum(minPricePerUnit × qty) across selected equipment
+  const catalogMinimumForAssets = selectedEquipment.reduce((sum, item) => {
+    const cat = catalogItems.find((c) => c.sku === item.sku)
+    return sum + (cat?.minPricePerUnit ?? 0) * item.qty
+  }, 0)
+
   const initLineItems = () =>
     selectedModules.map((moduleKey) => {
       const cfg = configByModule[moduleKey]
       const existing = existingQuote?.lineItems.find((li) => li.moduleKey === moduleKey)
+      // For ASSETS: if no existing quote yet, pre-fill with catalog minimum (if available)
+      const assetsDefault = moduleKey === "ASSETS" && !existingQuote && catalogMinimumForAssets > 0
+        ? catalogMinimumForAssets
+        : (cfg?.defaultOneTimeFee ?? 0)
       return {
         moduleKey,
         pricingType: cfg?.pricingType ?? "MONTHLY",
-        oneTimeFee: existing?.oneTimeFee ?? cfg?.defaultOneTimeFee ?? 0,
+        oneTimeFee: existing?.oneTimeFee ?? (moduleKey === "ASSETS" ? assetsDefault : (cfg?.defaultOneTimeFee ?? 0)),
         monthlyFee: existing?.monthlyFee ?? cfg?.defaultMonthlyFee ?? 0,
         takeRatePct: existing?.takeRatePct ?? cfg?.defaultTakeRatePct ?? 0,
       }

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/client"
 import { Prisma } from "@prisma/client"
 import { LeadFormSubmitSchema } from "@/lib/validations/lead"
 import { generateCenterCode } from "@/lib/centers/code"
+import { appendHistory } from "@/lib/leads/quoteHistory"
 
 const CENTER_SERVICE_URL = process.env.CENTER_SERVICE_URL ?? ""
 const CENTER_SERVICE_USER_ID = process.env.CENTER_SERVICE_USER_ID ?? "123456"
@@ -201,9 +202,23 @@ export async function POST(
         data: { status: "ACCEPTED", centerId: center.id },
       })
 
+      const totalOneTime = lead.quote!.lineItems.reduce((s: number, li: { oneTimeFee: number | null }) => s + (li.oneTimeFee ?? 0), 0)
+      const totalMonthly = lead.quote!.lineItems.reduce((s: number, li: { monthlyFee: number | null }) => s + (li.monthlyFee ?? 0), 0)
+      const acceptHistory = appendHistory((lead.quote as { historyJson?: string }).historyJson, {
+        round: (lead.quote as { revisionRound?: number }).revisionRound ?? 0,
+        action: "RWA_ACCEPTED",
+        actorRole: "RWA_ADMIN",
+        snapshot: {
+          totalOneTime,
+          totalMonthly,
+          totalAmount: (lead.quote as { totalAmount?: number | null }).totalAmount ?? undefined,
+          quoteMode: (lead.quote as { quoteMode?: string }).quoteMode,
+        },
+      })
+
       await tx.quote.update({
         where: { id: lead.quote!.id },
-        data: { status: "ACCEPTED", acceptedAt: new Date() },
+        data: { status: "ACCEPTED", acceptedAt: new Date(), historyJson: acceptHistory },
       })
 
       return center

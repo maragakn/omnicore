@@ -267,6 +267,9 @@ model Quote {
   revisionRound         Int     @default(0)
   revisionNotes         String? // RWA's change request message
   revisionEquipmentJson String? // JSON of RWA's updated equipment selection
+  // History log — JSON array of QuoteHistoryEntry (appended on each state change)
+  // [{ round, action, actorRole, notes, snapshot, ts }]
+  historyJson           String? @default("[]")
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 }

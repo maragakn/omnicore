@@ -4,6 +4,7 @@ import { deriveEquipmentCategory } from "@/lib/onboarding/equipment"
 import { StatusBadge } from "@/components/shared/StatusBadge"
 import { LeadReviewPanel } from "@/components/leads/LeadReviewPanel"
 import { EquipmentRecommendationPanel } from "@/components/leads/EquipmentRecommendationPanel"
+import { QuoteHistoryTimeline } from "@/components/leads/QuoteHistoryTimeline"
 import Link from "next/link"
 import { AlertTriangle, RefreshCw } from "lucide-react"
 import { CATEGORY_DISPLAY_NAMES } from "@/lib/equipment/catalog"
@@ -132,6 +133,13 @@ export default async function LeadDetailPage({ params }: Props) {
         >
           Continue Quote →
         </Link>
+      )}
+
+      {/* Quote history timeline */}
+      {lead.quote?.historyJson && (
+        <div className="rounded-xl border border-[#1f2937] bg-[#111111] p-5">
+          <QuoteHistoryTimeline historyJson={lead.quote.historyJson} />
+        </div>
       )}
     </div>
   )

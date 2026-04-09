@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/client"
 import { StatCard } from "@/components/shared/StatCard"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { BillingCard } from "@/components/rwa/BillingCard"
 
 async function getCenter() {
   return prisma.center.findFirst({
@@ -10,6 +11,13 @@ async function getCenter() {
     include: {
       modules: { where: { isEnabled: true } },
       residentialDetails: true,
+      lead: {
+        include: {
+          quote: {
+            include: { lineItems: true },
+          },
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   })
@@ -102,6 +110,14 @@ export default async function RWAAdminDashboardPage() {
             Your gym setup is in progress. Once your quote is accepted, your gym details will appear here.
           </p>
         </div>
+      )}
+
+          {/* Billing card — shown when quote is accepted */}
+      {center?.lead?.quote?.status === "ACCEPTED" && (
+        <BillingCard
+          quote={center.lead.quote}
+          centerName={center.name}
+        />
       )}
 
       {/* Live stat cards */}

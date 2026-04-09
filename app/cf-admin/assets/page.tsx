@@ -2,8 +2,9 @@ import { prisma } from "@/lib/db/client"
 import { CATEGORY_DISPLAY_NAMES } from "@/lib/equipment/catalog"
 import { formatPaise } from "@/lib/leads/quote"
 import { SectionHeader } from "@/components/shared/SectionHeader"
+import { AddEquipmentForm } from "@/components/equipment/AddEquipmentForm"
 import Link from "next/link"
-import { Pencil, AlertCircle, ArrowUpCircle, Wrench } from "lucide-react"
+import { Pencil, AlertCircle, Wrench } from "lucide-react"
 
 async function getCatalog() {
   return prisma.equipmentCatalogItem.findMany({ orderBy: [{ category: "asc" }, { name: "asc" }] })
@@ -27,9 +28,11 @@ export default async function CFAdminAssetsPage() {
         title="Equipment Catalog"
         description="Manage Cultsport equipment catalog, minimum prices, and version tracking."
         action={
-          <div className="flex items-center gap-2 text-xs text-[#6b7280]">
-            <span className="text-white font-semibold">{items.length}</span> items ·{" "}
-            <span className="text-white font-semibold">{totalWithPrice}</span> priced
+          <div className="flex items-center gap-3">
+            <div className="text-xs text-[#6b7280]">
+              <span className="text-white font-semibold">{items.length}</span> items ·{" "}
+              <span className="text-white font-semibold">{totalWithPrice}</span> priced
+            </div>
           </div>
         }
       />
@@ -109,16 +112,37 @@ export default async function CFAdminAssetsPage() {
                       <p className="text-[10px] text-[#6b7280]">min / unit</p>
                     </div>
 
-                    {/* Edit button */}
-                    <Link
-                      href={`/cf-admin/assets/${item.sku}/edit`}
-                      className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1f2937] bg-[#111827] hover:border-[#374151] hover:bg-[#1a2235] text-[#9ca3af] hover:text-white transition-all text-xs font-medium"
-                    >
-                      <Pencil className="w-3 h-3" />
-                      Edit
-                    </Link>
+                    {/* Edit + New Version buttons */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {/* New Version — only on latest items that aren't already superseded */}
+                      {item.isLatestVersion && (
+                        <AddEquipmentForm
+                          category={category}
+                          categoryDisplayName={displayName}
+                          supersedesOldSku={item.sku}
+                          supersedesOldName={item.name}
+                          defaultSpecs={item.specsJson ?? undefined}
+                          defaultPrice={item.minPricePerUnit ?? undefined}
+                        />
+                      )}
+                      <Link
+                        href={`/cf-admin/assets/${item.sku}/edit`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#1f2937] bg-[#111827] hover:border-[#374151] hover:bg-[#1a2235] text-[#9ca3af] hover:text-white transition-all text-xs font-medium"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </Link>
+                    </div>
                   </div>
                 ))}
+
+                {/* Add brand-new equipment to this category */}
+                <div className="px-5 py-3 border-t border-[#1a2030] bg-[#080b11]">
+                  <AddEquipmentForm
+                    category={category}
+                    categoryDisplayName={displayName}
+                  />
+                </div>
               </div>
             </div>
           )

@@ -1,6 +1,7 @@
 import { QuoteSummaryCard } from "@/components/rwa/QuoteSummaryCard"
 import { QuoteAcceptButtons } from "@/components/rwa/QuoteAcceptButtons"
 import { QuoteRevisionForm } from "@/components/rwa/QuoteRevisionForm"
+import { QuoteHistoryTimeline } from "@/components/leads/QuoteHistoryTimeline"
 
 interface Props {
   params: Promise<{ token: string }>
@@ -127,6 +128,13 @@ export default async function RWAQuotePage({ params }: Props) {
             currentEquipment={currentEquipment}
           />
         </div>
+
+        {/* Quote history */}
+        {quote.historyJson && (
+          <div className="border-t border-[#1f2937] pt-6">
+            <QuoteHistoryTimeline historyJson={quote.historyJson} />
+          </div>
+        )}
       </div>
     </div>
   )
