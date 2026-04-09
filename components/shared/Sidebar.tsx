@@ -23,7 +23,6 @@ export function Sidebar({ role, currentPath }: SidebarProps) {
 
   return (
     <aside className="flex flex-col h-screen w-60 shrink-0 border-r border-[#1f2937] bg-[#0d1117]">
-      {/* ── Brand ── */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1f2937]">
         <div className="flex items-center justify-center w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30">
           <Zap className="w-4 h-4 text-cyan-400" />

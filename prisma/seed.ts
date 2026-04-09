@@ -29,6 +29,8 @@ async function main() {
   await prisma.centerModule.deleteMany()
   await prisma.myGateConfig.deleteMany()
   await prisma.residentialDetails.deleteMany()
+  await prisma.trainerL0Training.deleteMany()
+  await prisma.trainerOnboarding.deleteMany()
   await prisma.trainer.deleteMany()
   await prisma.center.deleteMany()
 
@@ -395,7 +397,20 @@ async function main() {
     }),
   ])
 
-  console.log("✓ Trainers created")
+  await prisma.trainer.create({
+    data: {
+      name: "Neha Kapoor",
+      phone: "+91 98441 10006",
+      email: "neha.kapoor@omnicore.fit",
+      trainerType: "FULLTIME",
+      specialization: "HIIT & conditioning",
+      certifications: "ACSM CPT",
+      joinedOn: daysAgo(14),
+      isActive: true,
+    },
+  })
+
+  console.log("✓ Trainers created (including 1 on bench, unmapped)")
 
   // ─── Center Trainer Mappings ───────────────────────────────────────────────
 
@@ -411,6 +426,109 @@ async function main() {
   })
 
   console.log("✓ Center-trainer mappings created")
+
+  // ─── Trainer onboarding pipeline (pre–center deployment) ───────────────────
+
+  await prisma.trainerOnboarding.createMany({
+    data: [
+      {
+        pipelineStage: "HIRING",
+        name: "Kavya Nambiar",
+        phone: "+91 98450 22001",
+        email: "kavya.n@example.com",
+        employeeRef: "CAND-T-501",
+        govtIdentityId: "XXXX5010",
+        areaLocality: "Indiranagar",
+        experience: "2 yrs floor coaching",
+        languagesKnown: '["English","Hindi","Malayalam"]',
+        imageUrl: null,
+        address: "12th Main, Indiranagar, Bengaluru",
+      },
+      {
+        pipelineStage: "INTERVIEWING",
+        name: "Imran Qureshi",
+        phone: "+91 98450 22002",
+        email: "imran.q@example.com",
+        employeeRef: "CAND-T-502",
+        govtIdentityId: "XXXX5021",
+        areaLocality: "Koramangala",
+        experience: "ACE CPT, CrossFit L1",
+        languagesKnown: '["English","Hindi","Urdu"]',
+        imageUrl: null,
+        address: "5th Block, Koramangala",
+      },
+      {
+        pipelineStage: "OFFER_ROLLED_OUT",
+        name: "Divya S",
+        phone: "+91 98450 22003",
+        email: "divya.s@example.com",
+        employeeRef: "CAND-T-503",
+        govtIdentityId: "XXXX5032",
+        areaLocality: "Whitefield",
+        experience: "5 yrs Les Mills, RPM",
+        languagesKnown: '["English","Tamil","Kannada"]',
+        imageUrl: null,
+        address: "Hope Farm Junction area",
+        tentativeStartDate: daysFromNow(21),
+      },
+      {
+        pipelineStage: "OFFER_ACCEPTED",
+        name: "Ananya Pillai",
+        phone: "+91 98450 22005",
+        email: "ananya.p@example.com",
+        employeeRef: "CAND-T-505",
+        govtIdentityId: "XXXX5054",
+        areaLocality: "Marathahalli",
+        experience: "4 yrs group classes",
+        languagesKnown: '["English","Malayalam","Kannada"]',
+        imageUrl: null,
+        address: "Outer Ring Road, Marathahalli",
+        tentativeStartDate: daysFromNow(10),
+        joinedOn: daysAgo(3),
+      },
+    ],
+  })
+
+  console.log("✓ Trainer hiring pipeline seeded (ends at offer accepted)")
+
+  // ─── L0 training (post-offer; separate from hiring and from center roster) ─
+
+  await prisma.trainerL0Training.createMany({
+    data: [
+      {
+        l0Stage: "NOT_STARTED",
+        name: "Nikhil Verma",
+        phone: "+91 98450 22004",
+        email: "nikhil.v@example.com",
+        employeeRef: "L0-T-504",
+        notes: "Scheduled cohort start next week",
+        startDate: daysFromNow(2),
+        endDate: daysFromNow(16),
+      },
+      {
+        l0Stage: "IN_PROGRESS",
+        name: "Rahul Menon",
+        phone: "+91 98450 22007",
+        email: "rahul.m@example.com",
+        employeeRef: "L0-T-507",
+        notes: "Week 2 modules",
+        startDate: daysAgo(10),
+        endDate: daysFromNow(4),
+      },
+      {
+        l0Stage: "COMPLETED",
+        name: "Sneha Reddy",
+        phone: "+91 98450 22008",
+        email: "sneha.r@example.com",
+        employeeRef: "L0-T-508",
+        notes: "Cleared for roster onboarding",
+        startDate: daysAgo(21),
+        endDate: daysAgo(2),
+      },
+    ],
+  })
+
+  console.log("✓ L0 training enrollments seeded")
 
   // ─── Trainer Attendance (last 7 days) ────────────────────────────────────
 
@@ -558,6 +676,7 @@ async function main() {
     slotDate: Date
     slotHour: number
     status: string
+    attendedAt: Date | null
     bookedAt: Date
     createdAt: Date
   }[] = []
@@ -575,6 +694,7 @@ async function main() {
       const prestigeCount = Math.ceil(totalCount * 0.6)
       for (let i = 0; i < prestigeCount; i++) {
         const member = pickRandom(prestigeResidents)
+        const slotStart = slotDate.getTime() + slotHour * 3600000
         amenityBookings.push({
           centerId: centerPrestige.id,
           memberName: member.name,
@@ -582,6 +702,7 @@ async function main() {
           slotDate,
           slotHour,
           status: "BOOKED",
+          attendedAt: Math.random() < 0.72 ? new Date(slotStart + 8 * 60000) : null,
           bookedAt: new Date(slotDate.getTime() + slotHour * 3600000 - 86400000),
           createdAt: new Date(slotDate.getTime() + slotHour * 3600000 - 86400000),
         })
@@ -590,6 +711,7 @@ async function main() {
       const brigadeCount = Math.ceil(totalCount * 0.4)
       for (let i = 0; i < brigadeCount; i++) {
         const member = pickRandom(brigadeResidents)
+        const slotStartB = slotDate.getTime() + slotHour * 3600000
         amenityBookings.push({
           centerId: centerBrigade.id,
           memberName: member.name,
@@ -597,6 +719,7 @@ async function main() {
           slotDate,
           slotHour,
           status: "BOOKED",
+          attendedAt: Math.random() < 0.72 ? new Date(slotStartB + 8 * 60000) : null,
           bookedAt: new Date(slotDate.getTime() + slotHour * 3600000 - 86400000),
           createdAt: new Date(slotDate.getTime() + slotHour * 3600000 - 86400000),
         })
@@ -1134,7 +1257,8 @@ async function main() {
   console.log("\n✅ Seed complete!")
   console.log(`   Centers: 3 (2 active, 1 onboarding)`)
   console.log(`   Center Modules: seeded per center (Trainers, Assets, MyGate, Branding, VMs)`)
-  console.log(`   Trainers: 5 (3 fulltime, 2 PT)`)
+  console.log(`   Hiring pipeline: 4 candidates · L0 enrollments: 3`)
+  console.log(`   Trainers: 6 roster (5 mapped, 1 bench); 3 fulltime mapped, 2 PT mapped`)
   console.log(`   Assets: 8 (including 1 red, 1 amber)`)
   console.log(`   Service Requests: 4 (1 open critical, 1 in-progress, 1 assigned, 1 resolved)`)
   console.log(`   Amenity Bookings: ${amenityBookings.length}`)

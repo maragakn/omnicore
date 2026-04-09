@@ -86,6 +86,8 @@ model AmenityBooking {
   slotHour   Int
   // status: BOOKED | CANCELLED
   status     String   @default("BOOKED")
+  /// Set on first successful kiosk check-in (demo: POST /api/kiosk/verify-checkin)
+  attendedAt DateTime?
   bookedAt   DateTime @default(now())
   createdAt  DateTime @default(now())
 }
@@ -159,6 +161,57 @@ model Trainer {
   centerMappings CenterTrainerMapping[]
   attendances    TrainerAttendance[]
   ptSessions     PTSession[]
+}
+
+/// Hiring pipeline only — ends at offer accepted. L0 and center assignment are separate products.
+model TrainerOnboarding {
+  id     String @id @default(cuid())
+  // HIRING | INTERVIEWING | OFFER_ROLLED_OUT | OFFER_ACCEPTED
+  pipelineStage String @default("HIRING")
+
+  name           String
+  phone          String
+  email          String?
+  /// Internal / employee reference id
+  employeeRef    String?
+  govtIdentityId String?
+  areaLocality   String?
+  experience     String?
+  /// JSON array of language codes or names, e.g. ["English","Hindi"]
+  languagesKnown String?
+  imageUrl       String?
+  address        String?
+
+  /// Expected employment / cohort start while offer is open or after acceptance (tentative).
+  tentativeStartDate DateTime?
+  /// Actual date the candidate joined as an employee (after offer, before or alongside L0).
+  joinedOn           DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Post-offer L0 program — separate from hiring and from center roster (`Trainer` / `CenterTrainerMapping`).
+model TrainerL0Training {
+  id     String @id @default(cuid())
+  // NOT_STARTED | IN_PROGRESS | COMPLETED
+  l0Stage String @default("NOT_STARTED")
+
+  name        String
+  phone       String
+  email       String?
+  employeeRef String?
+  notes       String?
+
+  /// When this row was created from a hiring record (optional)
+  sourceOnboardingId String? @unique
+
+  /// Scheduled or actual L0 program window (date-only semantics; store midnight local as UTC if needed).
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CenterTrainerMapping {
