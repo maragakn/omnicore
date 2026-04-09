@@ -77,7 +77,7 @@ export function EquipmentBreakdownPanel({ items, catalogItems, totalAssetFee }: 
                   <tr key={item.sku} className="hover:bg-[#111827]/50">
                     <td className="px-4 py-2 text-[#e5e7eb] flex items-center gap-2">
                       {item.imageUrl && (
-                        <img src={item.imageUrl} alt={item.name} className="w-7 h-5 rounded object-cover border border-[#1f2937]" />
+                        <img src={item.imageUrl} alt={item.name} className="w-7 h-5 rounded-lg object-cover ring-1 ring-white/10 shadow-sm" />
                       )}
                       <span className="truncate">{item.name}</span>
                     </td>

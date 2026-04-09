@@ -44,13 +44,15 @@ export default async function CFAdminAssetsPage() {
 
           return (
             <div key={category} className="rounded-2xl border border-[#1f2937] overflow-hidden">
-              {/* Category header with hero image */}
-              <div className="relative h-20 overflow-hidden bg-[#0d1117]">
+              {/* Category header — cinematic hero */}
+              <div className="relative h-32 overflow-hidden bg-[#0d1117]">
                 {heroImage && (
-                  <img src={heroImage} alt={displayName} className="w-full h-full object-cover object-center opacity-60" />
+                  <img src={heroImage} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center opacity-20" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0d14]/95 via-[#0a0d14]/70 to-transparent flex items-center px-5 gap-3">
-                  <Wrench className="w-4 h-4 text-cyan-400 shrink-0" />
+                <div className="hero-overlay-h" />
+                <div className="hero-overlay-v" />
+                <div className="absolute inset-0 flex items-end px-5 pb-4 gap-3">
+                  <Wrench className="w-4 h-4 text-cyan-400 shrink-0 mb-0.5" />
                   <div>
                     <h3 className="text-sm font-bold text-white">{displayName}</h3>
                     <p className="text-[11px] text-[#6b7280]">{catItems.length} products</p>
@@ -63,19 +65,20 @@ export default async function CFAdminAssetsPage() {
                 {catItems.map((item) => (
                   <div
                     key={item.sku}
-                    className="flex items-center gap-4 px-5 py-3 hover:bg-[#0f1623] transition-colors"
+                    className="relative flex items-center gap-4 px-5 py-3 hover:bg-[#0f1623] transition-colors overflow-hidden"
                   >
-                    {/* Thumbnail */}
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-12 h-9 rounded-lg object-cover shrink-0 border border-[#1f2937]"
+                    {/* Edge-bleed image */}
+                    {item.imageUrl && (
+                      <div
+                        className="absolute left-0 top-0 w-32 h-full opacity-20 pointer-events-none"
+                        style={{
+                          backgroundImage: `url(${item.imageUrl})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          maskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                          WebkitMaskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                        }}
                       />
-                    ) : (
-                      <div className="w-12 h-9 rounded-lg bg-[#1f2937] flex items-center justify-center shrink-0">
-                        <Wrench className="w-3.5 h-3.5 text-[#6b7280]" />
-                      </div>
                     )}
 
                     {/* Name + SKU + specs */}

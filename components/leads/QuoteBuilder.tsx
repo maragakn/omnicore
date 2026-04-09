@@ -265,7 +265,7 @@ export function QuoteBuilder({ leadId, selectedModules, pricingConfigs, selected
         <button
           onClick={handleSend}
           disabled={sending || loading}
-          className="px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] disabled:opacity-50 transition-colors"
+          className="btn-primary"
         >
           {sending ? "Sending…" : "Send Quote to RWA Admin"}
         </button>

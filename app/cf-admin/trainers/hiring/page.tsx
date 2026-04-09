@@ -20,7 +20,7 @@ export default async function TrainerHiringPipelinePage() {
         </div>
         <Link
           href="/cf-admin/trainers/hiring/new"
-          className="px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors shrink-0"
+          className="btn-primary shrink-0"
         >
           + Add candidate
         </Link>

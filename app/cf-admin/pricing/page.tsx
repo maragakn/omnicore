@@ -56,13 +56,18 @@ export default async function PricingPage() {
           <div className="rounded-xl border border-[#1f2937] overflow-hidden">
             <div className="divide-y divide-[#1f2937]">
               {highlightItems.map((item) => (
-                <div key={item.sku} className="flex items-center gap-4 px-5 py-3 hover:bg-[#111827] transition-colors">
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.name} className="w-10 h-7 rounded object-cover border border-[#1f2937] shrink-0" />
-                  ) : (
-                    <div className="w-10 h-7 rounded bg-[#1f2937] flex items-center justify-center shrink-0">
-                      <Wrench className="w-3 h-3 text-[#6b7280]" />
-                    </div>
+                <div key={item.sku} className="relative flex items-center gap-4 px-5 py-3 hover:bg-[#111827] transition-colors overflow-hidden">
+                  {item.imageUrl && (
+                    <div
+                      className="absolute left-0 top-0 w-24 h-full opacity-20 pointer-events-none"
+                      style={{
+                        backgroundImage: `url(${item.imageUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        maskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                        WebkitMaskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                      }}
+                    />
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-[#e5e7eb] truncate">{item.name}</p>

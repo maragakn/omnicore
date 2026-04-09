@@ -147,13 +147,15 @@ export default async function RWAAdminAssetsPage() {
 
           return (
             <div key={category} className="rounded-2xl border border-[#1f2937] overflow-hidden">
-              {/* Category header */}
-              <div className="relative h-20 overflow-hidden bg-[#0d1117]">
+              {/* Category header — cinematic hero */}
+              <div className="relative h-32 overflow-hidden bg-[#0d1117]">
                 {heroImage && (
-                  <img src={heroImage} alt={displayName} className="w-full h-full object-cover opacity-50" />
+                  <img src={heroImage} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center opacity-20" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#0a0d14]/95 via-[#0a0d14]/70 to-transparent flex items-center px-5 gap-3">
-                  <Wrench className="w-4 h-4 text-cyan-400 shrink-0" />
+                <div className="hero-overlay-h" />
+                <div className="hero-overlay-v" />
+                <div className="absolute inset-0 flex items-end px-5 pb-4 gap-3">
+                  <Wrench className="w-4 h-4 text-cyan-400 shrink-0 mb-0.5" />
                   <div>
                     <h3 className="text-sm font-bold text-white">{displayName}</h3>
                     <p className="text-[11px] text-[#6b7280]">{assets.length} unit{assets.length !== 1 ? "s" : ""}</p>
@@ -170,14 +172,19 @@ export default async function RWAAdminAssetsPage() {
                   const openSRs = asset.serviceRequests.length
 
                   return (
-                    <div key={asset.id} className="px-5 py-4 space-y-2">
+                    <div key={asset.id} className="relative px-5 py-4 space-y-2 overflow-hidden">
                       <div className="flex items-start gap-4">
-                        {/* Asset image */}
-                        {(catalogItem?.imageUrl) && (
-                          <img
-                            src={catalogItem.imageUrl}
-                            alt={asset.name}
-                            className="w-14 h-10 rounded-lg object-cover border border-[#1f2937] shrink-0"
+                        {/* Edge-bleed image instead of boxed thumbnail */}
+                        {catalogItem?.imageUrl && (
+                          <div
+                            className="absolute left-0 top-0 w-32 h-full opacity-20 pointer-events-none"
+                            style={{
+                              backgroundImage: `url(${catalogItem.imageUrl})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              maskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                              WebkitMaskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                            }}
                           />
                         )}
 

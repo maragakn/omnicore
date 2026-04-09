@@ -61,7 +61,7 @@ export function QuoteAcceptButtons({ leadId, inviteToken }: Props) {
         </p>
         <Link
           href="/rwa-admin"
-          className="inline-flex mt-4 px-4 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+          className="btn-primary mt-4"
         >
           Open your dashboard
         </Link>
@@ -93,14 +93,14 @@ export function QuoteAcceptButtons({ leadId, inviteToken }: Props) {
         <button
           onClick={handleReject}
           disabled={rejecting || accepting}
-          className="flex-1 py-2.5 bg-[#1f2937] text-[#e5e7eb] text-sm font-medium rounded-lg hover:bg-[#374151] disabled:opacity-50 transition-colors"
+          className="btn-secondary flex-1"
         >
           {rejecting ? "Declining…" : "Decline"}
         </button>
         <button
           onClick={handleAccept}
           disabled={accepting || rejecting}
-          className="flex-1 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] disabled:opacity-50 transition-colors"
+          className="btn-primary flex-1"
         >
           {accepting ? "Accepting…" : "Accept Quote & Confirm"}
         </button>

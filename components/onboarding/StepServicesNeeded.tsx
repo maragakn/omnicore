@@ -49,9 +49,9 @@ export function StepServicesNeeded({ selectedEquipment, onChange, onNext, onBack
               <div className="flex items-center gap-3">
                 {items[0]?.imageUrl ? (
                   <img src={items[0].imageUrl} alt={label}
-                    className="w-8 h-8 rounded-md object-cover shrink-0" />
+                    className="w-8 h-8 rounded-xl object-cover ring-1 ring-white/10 shadow-md shrink-0" />
                 ) : (
-                  <div className="w-8 h-8 rounded-md bg-[#1f2937] flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-[#1f2937] flex items-center justify-center shrink-0">
                     <Wrench className="w-3.5 h-3.5 text-[#6b7280]" />
                   </div>
                 )}
@@ -74,7 +74,7 @@ export function StepServicesNeeded({ selectedEquipment, onChange, onNext, onBack
 
                     {item.imageUrl && (
                       <img src={item.imageUrl} alt={item.name}
-                        className="w-10 h-10 rounded-lg object-cover shrink-0 opacity-80" />
+                        className="w-10 h-10 rounded-xl object-cover shrink-0 ring-1 ring-white/10 shadow-lg" />
                     )}
 
                     <div className="flex-1 min-w-0">

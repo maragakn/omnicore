@@ -194,7 +194,7 @@ export function AddEquipmentForm({
           <button
             onClick={handleSave}
             disabled={saving || saved}
-            className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold bg-[#f97316] text-white rounded-lg hover:bg-[#ea6c0c] disabled:opacity-60 transition-colors"
+            className="btn-primary text-xs py-1.5 px-3"
           >
             {saved ? (
               <><CheckCircle2 className="w-3 h-3" />Added!</>

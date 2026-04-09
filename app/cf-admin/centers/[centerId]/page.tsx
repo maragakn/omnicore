@@ -184,10 +184,13 @@ export default async function CFAdminCenterDetailPage({ params }: Props) {
 
               return (
                 <div key={category} className="rounded-2xl border border-[#1f2937] overflow-hidden">
-                  <div className="relative h-16 bg-[#0d1117] overflow-hidden">
-                    {heroImage && <img src={heroImage} alt={category} className="w-full h-full object-cover opacity-50" />}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#0a0d14]/95 via-[#0a0d14]/70 to-transparent flex items-center px-4 gap-2">
-                      <Wrench className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  {/* Cinematic hero */}
+                  <div className="relative h-28 bg-[#0d1117] overflow-hidden">
+                    {heroImage && <img src={heroImage} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center opacity-20" />}
+                    <div className="hero-overlay-h" />
+                    <div className="hero-overlay-v" />
+                    <div className="absolute inset-0 flex items-end px-4 pb-3 gap-2">
+                      <Wrench className="w-3.5 h-3.5 text-cyan-400 shrink-0 mb-0.5" />
                       <p className="text-sm font-bold text-white">{CATEGORY_DISPLAY_NAMES[category] ?? category}</p>
                       <span className="text-[11px] text-[#6b7280]">· {assets.length} unit{assets.length !== 1 ? "s" : ""}</span>
                     </div>
@@ -201,11 +204,20 @@ export default async function CFAdminCenterDetailPage({ params }: Props) {
                       const openSRCount = asset.serviceRequests.length
 
                       return (
-                        <div key={asset.id} className="px-4 py-3 space-y-2">
+                        <div key={asset.id} className="relative px-4 py-3 space-y-2 overflow-hidden">
                           <div className="flex items-start gap-3">
+                            {/* Edge-bleed instead of framed thumbnail */}
                             {catalogItem?.imageUrl && (
-                              <img src={catalogItem.imageUrl} alt={asset.name}
-                                className="w-12 h-9 rounded-lg object-cover border border-[#1f2937] shrink-0" />
+                              <div
+                                className="absolute left-0 top-0 w-28 h-full opacity-20 pointer-events-none"
+                                style={{
+                                  backgroundImage: `url(${catalogItem.imageUrl})`,
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                  maskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                                  WebkitMaskImage: "linear-gradient(to right, transparent, black 50%, transparent)",
+                                }}
+                              />
                             )}
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-white truncate">{asset.name}</p>

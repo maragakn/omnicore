@@ -130,7 +130,7 @@ export function CreateLeadForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="btn-primary w-full"
       >
         {loading ? "Generating invite…" : "Generate Invite Link"}
       </button>

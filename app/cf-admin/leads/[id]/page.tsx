@@ -103,7 +103,7 @@ export default async function LeadDetailPage({ params }: Props) {
           <div className="pl-6">
             <Link
               href={`/cf-admin/leads/${lead.id}/quote`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+              className="btn-primary"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Revise Quote →
@@ -136,7 +136,7 @@ export default async function LeadDetailPage({ params }: Props) {
         <div className="flex gap-3">
           <Link
             href={`/cf-admin/leads/${lead.id}/quote`}
-            className="px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+            className="btn-primary"
           >
             Build Quote →
           </Link>
@@ -146,7 +146,7 @@ export default async function LeadDetailPage({ params }: Props) {
       {lead.quote && lead.quote.status === "DRAFT" && (
         <Link
           href={`/cf-admin/leads/${lead.id}/quote`}
-          className="inline-block px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+          className="btn-primary"
         >
           Continue Quote →
         </Link>

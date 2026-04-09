@@ -155,12 +155,15 @@ export function TrainerOnboardingDetailPanel({ onboarding }: { onboarding: Clien
         </div>
 
         {onboarding.imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={onboarding.imageUrl}
-            alt=""
-            className="max-w-xs rounded-lg border border-[#1f2937] object-cover"
-          />
+          <div className="relative max-w-xs rounded-2xl overflow-hidden ring-1 ring-white/10 shadow-xl">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={onboarding.imageUrl}
+              alt=""
+              className="w-full object-cover"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0a0d14]/70 to-transparent" />
+          </div>
         )}
 
         <div className="space-y-1">
@@ -207,7 +210,7 @@ export function TrainerOnboardingDetailPanel({ onboarding }: { onboarding: Clien
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors disabled:opacity-50"
+            className="btn-primary"
           >
             {loading ? "Saving…" : "Save changes"}
           </button>

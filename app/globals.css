@@ -6,6 +6,11 @@
   --font-mono: var(--font-dm-mono), "Courier New", monospace;
   --font-display: var(--font-syne), system-ui, sans-serif;
 
+  /* Brand gradient stops — Omni: cyan → blue → purple */
+  --color-brand-cyan: #22d3ee;
+  --color-brand-blue: #3b82f6;
+  --color-brand-purple: #a855f7;
+
   /* Brand accent colors */
   --color-cyan-400: #22d3ee;
   --color-cyan-500: #06b6d4;
@@ -13,6 +18,8 @@
   --color-purple-400: #c084fc;
   --color-purple-500: #a855f7;
   --color-purple-600: #9333ea;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
   --color-emerald-400: #34d399;
   --color-emerald-500: #10b981;
   --color-amber-400: #fbbf24;
@@ -58,48 +65,108 @@ html {
 
 body {
   background-color: #0a0d14;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(34, 211, 238, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 85% 90%, rgba(168, 85, 247, 0.05) 0%, transparent 70%);
   color: #f9fafb;
   min-height: 100vh;
   font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
 }
 
-/* ─── Scrollbar styling ───────────────────────────────────────────────────── */
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #111827; }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+/* ─── Typography ──────────────────────────────────────────────────────────── */
+
+.font-display  { font-family: var(--font-syne), system-ui, sans-serif; }
+.font-mono-metric { font-family: var(--font-dm-mono), monospace; letter-spacing: -0.02em; }
+
+/* ─── Gradient utilities ──────────────────────────────────────────────────── */
+
+.gradient-text {
+  background: linear-gradient(135deg, #22d3ee, #3b82f6, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-::-webkit-scrollbar-track {
-  background: #111827;
+.gradient-accent {
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #22d3ee 0%, #3b82f6 50%, #a855f7 100%);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 4px;
-}
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
 
-::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #a855f7 100%);
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, background-position 0.4s ease, transform 0.1s ease;
 }
+.btn-primary:hover:not(:disabled) { opacity: 0.9; background-position: 100% 50%; }
+.btn-primary:active:not(:disabled) { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ─── Typography utilities ────────────────────────────────────────────────── */
-
-.font-display {
-  font-family: var(--font-syne), system-ui, sans-serif;
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
+.btn-secondary:hover:not(:disabled) { background-color: #374151; border-color: #4b5563; }
+.btn-secondary:active:not(:disabled) { transform: scale(0.98); }
+.btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.font-mono-metric {
-  font-family: var(--font-dm-mono), monospace;
-  letter-spacing: -0.02em;
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #f87171;
+  background-color: transparent;
+  border: 1px solid rgba(248,113,113,0.25);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
+.btn-danger:hover:not(:disabled) { background-color: rgba(239,68,68,0.1); }
+.btn-danger:active:not(:disabled) { transform: scale(0.98); }
+.btn-danger:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ─── Focus ring ──────────────────────────────────────────────────────────── */
 
-:focus-visible {
-  outline: 2px solid #06b6d4;
-  outline-offset: 2px;
-}
+:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
 
 /* ─── Form inputs ─────────────────────────────────────────────────────────── */
 
@@ -111,26 +178,33 @@ body {
   color: #f9fafb;
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   outline: none;
 }
-
-.form-input::placeholder {
-  color: #4b5563;
-}
-
+.form-input::placeholder { color: #4b5563; }
 .form-input:focus {
-  border-color: #06b6d4;
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08);
+}
+.form-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Image composition helpers ───────────────────────────────────────────── */
+
+.hero-overlay-h {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #0a0d14 0%, rgba(10,13,20,0.82) 45%, transparent 100%);
 }
 
-.form-input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.hero-overlay-v {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,13,20,0.6) 0%, transparent 100%);
 }
 
-/* Upgrade ad gradient animation */
+/* ─── Upgrade ad / glow animation ────────────────────────────────────────── */
+
 @keyframes gradient {
   0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  50%       { background-position: 100% 50%; }
 }

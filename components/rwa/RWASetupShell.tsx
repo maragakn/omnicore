@@ -265,7 +265,7 @@ export function RWASetupShell({
 
           <button
             type="submit"
-            className="w-full py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+            className="btn-primary w-full"
           >
             Next: Choose Services →
           </button>
@@ -320,14 +320,14 @@ export function RWASetupShell({
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setStep(0)}
-              className="px-4 py-2 bg-[#1f2937] text-[#e5e7eb] text-sm font-medium rounded-lg hover:bg-[#374151] transition-colors"
+              className="btn-secondary"
             >
               ← Back
             </button>
             <button
               onClick={() => setStep(hasEquipmentStep ? 2 : 3)}
               disabled={selectedModules.length === 0}
-              className="flex-1 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="btn-primary flex-1"
             >
               {hasEquipmentStep ? "Next: Equipment →" : "Next: Review & Submit →"}
             </button>
@@ -404,14 +404,14 @@ export function RWASetupShell({
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setStep(hasEquipmentStep ? 2 : 1)}
-              className="px-4 py-2 bg-[#1f2937] text-[#e5e7eb] text-sm font-medium rounded-lg hover:bg-[#374151] transition-colors"
+              className="btn-secondary"
             >
               ← Back
             </button>
             <button
               onClick={handleFinalSubmit}
               disabled={submitting}
-              className="flex-1 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="btn-primary flex-1"
             >
               {submitting ? "Submitting…" : "Submit to CF Admin →"}
             </button>

@@ -17,7 +17,7 @@ export default async function LeadsPage() {
         </div>
         <Link
           href="/cf-admin/leads/new"
-          className="px-4 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+          className="btn-primary"
         >
           + Invite Society
         </Link>

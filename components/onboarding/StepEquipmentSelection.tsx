@@ -96,18 +96,17 @@ function CategoryCard({
         onClick={onToggle}
         className="w-full text-left relative group overflow-hidden"
       >
-        {/* Hero image with gradient overlay */}
+        {/* Cinematic category hero */}
         {heroImage ? (
-          <div className="relative h-28 overflow-hidden">
+          <div className="relative h-32 overflow-hidden bg-[#0d1117]">
             <img
               src={heroImage}
-              alt={catKey}
-              className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+              alt=""
+              aria-hidden
+              className="absolute inset-0 w-full h-full object-cover object-center opacity-25 transition-transform duration-700 group-hover:scale-105"
             />
-            {/* Dark gradient for readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0d14]/95 via-[#0a0d14]/60 to-transparent" />
-            {/* Bottom fade */}
-            <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#0a0d14] to-transparent" />
+            <div className="hero-overlay-h" />
+            <div className="hero-overlay-v" />
 
             {/* Content over the image */}
             <div className="absolute inset-0 flex items-center justify-between px-5">
@@ -190,10 +189,10 @@ function CategoryCard({
                 {/* Equipment image — larger, with depth effects */}
                 {item.imageUrl && (
                   <div className={cn(
-                    "relative shrink-0 w-[72px] h-[52px] rounded-xl overflow-hidden border transition-all duration-200",
+                    "relative shrink-0 w-[72px] h-[52px] rounded-xl overflow-hidden transition-all duration-200",
                     isChecked
-                      ? "border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.2)]"
-                      : "border-[#1f2937] opacity-70 group-hover:opacity-90"
+                      ? "ring-1 ring-cyan-500/50 shadow-[0_0_16px_rgba(6,182,212,0.25)]"
+                      : "ring-1 ring-white/5 opacity-70 group-hover:opacity-95"
                   )}>
                     <img
                       src={item.imageUrl}

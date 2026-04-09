@@ -149,7 +149,7 @@ export function QuoteRevisionForm({ leadId, currentEquipment }: Props) {
                     >
                       {checked ? <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" /> : <Circle className="w-4 h-4 text-[#374151] shrink-0" />}
                       {item.imageUrl && (
-                        <img src={item.imageUrl} alt={item.name} className="w-9 h-7 rounded object-cover border border-[#1f2937] shrink-0" />
+                        <img src={item.imageUrl} alt={item.name} className="w-9 h-7 rounded-xl object-cover ring-1 ring-white/10 shadow-md shrink-0" />
                       )}
                       <span className={cn("text-xs flex-1 truncate", checked ? "text-white" : "text-[#9ca3af]")}>
                         {item.name}
@@ -188,7 +188,7 @@ export function QuoteRevisionForm({ leadId, currentEquipment }: Props) {
               <button
                 onClick={handleRevision}
                 disabled={submitting}
-                className="flex-1 py-2 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] disabled:opacity-50 transition-colors"
+                className="btn-primary flex-1"
               >
                 {submitting ? "Sending…" : "Send Revision Request →"}
               </button>

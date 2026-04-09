@@ -8,13 +8,7 @@ interface SectionHeaderProps {
   className?: string
 }
 
-export function SectionHeader({
-  title,
-  description,
-  action,
-  badge,
-  className,
-}: SectionHeaderProps) {
+export function SectionHeader({ title, description, action, badge, className }: SectionHeaderProps) {
   return (
     <div className={cn("flex items-start justify-between gap-4 mb-6", className)}>
       <div className="min-w-0">
@@ -24,8 +18,10 @@ export function SectionHeader({
           </h1>
           {badge}
         </div>
+        {/* Gradient accent underline */}
+        <div className="gradient-accent w-10 mt-1.5" />
         {description && (
-          <p className="text-sm text-[#9ca3af] mt-0.5">{description}</p>
+          <p className="text-sm text-[#9ca3af] mt-1.5">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}

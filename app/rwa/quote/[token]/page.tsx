@@ -109,7 +109,7 @@ export default async function RWAQuotePage({ params }: Props) {
 
         <QuoteSummaryCard quote={quote} />
 
-        <QuoteAcceptButtons leadId={lead.id} />
+        <QuoteAcceptButtons leadId={lead.id} inviteToken={token} />
 
         {/* Revision form — add/remove equipment and request changes */}
         <div className="border-t border-[#1f2937] pt-6">
