@@ -35,13 +35,13 @@ export function StatCard({
   const isPositiveTrend = trend && trend.value >= 0
 
   return (
-    <div className={cn("rounded-xl border border-[#1f2937] bg-[#111827] overflow-hidden", className)}>
+    <div className={cn("rounded-xl border border-oc-border bg-oc-card overflow-hidden oc-shadow", className)}>
       {/* Gradient top accent bar */}
       <div className={cn("h-px w-full bg-gradient-to-r", styles.bar)} />
 
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
-          <span className="text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
+          <span className="text-[11px] font-semibold text-oc-fg-dim uppercase tracking-wider">
             {label}
           </span>
           <div className={cn("flex items-center justify-center w-7 h-7 rounded-md border", styles.icon)}>
@@ -49,7 +49,7 @@ export function StatCard({
           </div>
         </div>
 
-        <p className="text-3xl font-bold font-mono-metric text-white leading-none mb-1">
+        <p className="text-3xl font-bold font-mono-metric text-oc-fg leading-none mb-1">
           {value}
         </p>
 
@@ -61,8 +61,8 @@ export function StatCard({
                 {isPositiveTrend ? "+" : ""}{trend.value}%
               </span>
             )}
-            {trend && <span className="text-xs text-[#6b7280]">{trend.label}</span>}
-            {description && !trend && <span className="text-xs text-[#9ca3af]">{description}</span>}
+            {trend && <span className="text-xs text-oc-fg-dim">{trend.label}</span>}
+            {description && !trend && <span className="text-xs text-oc-fg-muted">{description}</span>}
           </div>
         )}
       </div>

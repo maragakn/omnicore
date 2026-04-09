@@ -55,8 +55,8 @@ export function QuoteAcceptButtons({ leadId, inviteToken }: Props) {
         <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto">
           <span className="text-emerald-400 text-xl">✓</span>
         </div>
-        <p className="text-[#e5e7eb] font-medium">Quote accepted!</p>
-        <p className="text-sm text-[#6b7280]">
+        <p className="text-oc-fg-soft font-medium">Quote accepted!</p>
+        <p className="text-sm text-oc-fg-dim">
           Your gym setup is confirmed. The CultSport team will be in touch soon.
         </p>
         <Link
@@ -72,7 +72,7 @@ export function QuoteAcceptButtons({ leadId, inviteToken }: Props) {
   if (done === "rejected") {
     return (
       <div className="text-center space-y-3">
-        <p className="text-[#6b7280] text-sm">
+        <p className="text-oc-fg-dim text-sm">
           You have declined this quote. The CultSport team will reach out if you change your mind.
         </p>
       </div>
@@ -86,7 +86,7 @@ export function QuoteAcceptButtons({ leadId, inviteToken }: Props) {
           {error}
         </div>
       )}
-      <p className="text-sm text-[#6b7280] text-center">
+      <p className="text-sm text-oc-fg-dim text-center">
         By accepting, you agree to the pricing above and authorize CultSport to proceed with setup.
       </p>
       <div className="flex gap-3">

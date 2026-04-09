@@ -17,7 +17,7 @@ export function UpgradeAdCard({ currentSku, currentName, newItem }: Props) {
       {/* Animated glow border */}
       <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-cyan-500 via-purple-500 to-cyan-500 animate-[gradient_3s_ease_infinite] opacity-70 bg-[length:200%_200%]" />
 
-      <div className="relative rounded-xl bg-[#0a0d14] overflow-hidden">
+      <div className="relative rounded-xl bg-oc-base overflow-hidden">
         {/* Full-bleed background image */}
         {newItem.imageUrl && (
           <>
@@ -29,7 +29,7 @@ export function UpgradeAdCard({ currentSku, currentName, newItem }: Props) {
                 backgroundPosition: "center right",
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0d14] via-[#0a0d14]/80 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-oc-base via-oc-base/80 to-transparent pointer-events-none" />
           </>
         )}
 
@@ -42,12 +42,12 @@ export function UpgradeAdCard({ currentSku, currentName, newItem }: Props) {
           </div>
 
           <div className="space-y-0.5">
-            <p className="text-xs text-[#6b7280]">
-              Your <span className="text-[#9ca3af]">{currentName.split(" CS-")[0].trim()}</span> has a newer model
+            <p className="text-xs text-oc-fg-dim">
+              Your <span className="text-oc-fg-muted">{currentName.split(" CS-")[0].trim()}</span> has a newer model
             </p>
-            <p className="text-sm font-semibold text-white">{newItem.name}</p>
+            <p className="text-sm font-semibold text-oc-fg">{newItem.name}</p>
             {newItem.specsJson && (
-              <p className="text-[11px] text-[#6b7280] mt-1 line-clamp-2">{newItem.specsJson}</p>
+              <p className="text-[11px] text-oc-fg-dim mt-1 line-clamp-2">{newItem.specsJson}</p>
             )}
           </div>
 
