@@ -44,7 +44,13 @@ export default async function RWASetupPage({ params }: Props) {
             <strong className="text-[#e5e7eb]">{lead.societyName}</strong>.
           </p>
         </div>
-        <RWASetupShell leadId={lead.id} token={token} societyName={lead.societyName} />
+        <RWASetupShell
+          leadId={lead.id}
+          societyName={lead.societyName}
+          contactName={lead.contactName}
+          contactEmail={lead.contactEmail}
+          contactPhone={lead.contactPhone ?? undefined}
+        />
       </div>
     </div>
   )

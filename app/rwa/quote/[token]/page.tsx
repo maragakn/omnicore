@@ -1,4 +1,6 @@
+import Link from "next/link"
 import { QuoteSummaryCard } from "@/components/rwa/QuoteSummaryCard"
+import { EstablishRwaSession } from "@/components/rwa/EstablishRwaSession"
 import { QuoteAcceptButtons } from "@/components/rwa/QuoteAcceptButtons"
 import { QuoteRevisionForm } from "@/components/rwa/QuoteRevisionForm"
 import { QuoteHistoryTimeline } from "@/components/leads/QuoteHistoryTimeline"
@@ -58,12 +60,19 @@ export default async function RWAQuotePage({ params }: Props) {
   if (quote.status === "ACCEPTED") {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-        <div className="text-center space-y-3">
+        <EstablishRwaSession token={token} />
+        <div className="text-center space-y-3 max-w-md">
           <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto">
             <span className="text-emerald-400 text-xl">✓</span>
           </div>
           <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Accepted</h1>
           <p className="text-sm text-[#6b7280]">Your gym setup is confirmed. CultSport will be in touch.</p>
+          <Link
+            href="/rwa-admin"
+            className="inline-flex mt-2 px-4 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+          >
+            Open your dashboard
+          </Link>
         </div>
       </div>
     )
@@ -103,6 +112,7 @@ export default async function RWAQuotePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-12 px-4">
+      <EstablishRwaSession token={token} />
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="text-center space-y-2">
           <div className="w-10 h-10 rounded-xl bg-[#f97316]/10 flex items-center justify-center mx-auto">
@@ -119,7 +129,7 @@ export default async function RWAQuotePage({ params }: Props) {
 
         <QuoteSummaryCard quote={quote} />
 
-        <QuoteAcceptButtons leadId={lead.id} />
+        <QuoteAcceptButtons leadId={lead.id} inviteToken={token} />
 
         {/* Revision form — add/remove equipment and request changes */}
         <div className="border-t border-[#1f2937] pt-6">

@@ -1,14 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { useForm, type Resolver } from "react-hook-form"
+import { useForm, type DefaultValues, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { CENTER_MODULE_META } from "@/lib/constants/enums"
 import { MODULE_PRICING_LABEL } from "@/lib/constants/enums"
 import { StepEquipmentSelection, type SelectedEquipmentItem } from "@/components/onboarding/StepEquipmentSelection"
 import { StepServicesNeeded } from "@/components/onboarding/StepServicesNeeded"
-import { getModelGymItems, computeGymTier, type GymSetupType } from "@/lib/equipment/catalog"
+import { getModelGymItems, computeGymTier } from "@/lib/equipment/catalog"
+import { buildGymDetailsDefaultsFromLead } from "@/lib/rwa/leadFormDefaults"
 
 const GymDetailsSchema = z.object({
   gymSetupType: z.enum(["NEW_GYM", "EXISTING_GYM"]),
@@ -28,33 +29,25 @@ const GymDetailsSchema = z.object({
 })
 type GymDetailsInput = z.infer<typeof GymDetailsSchema>
 
-// Pre-filled demo defaults — all fields filled so demo needs only clicks.
-const DEMO_DEFAULTS: GymDetailsInput = {
-  gymSetupType: "NEW_GYM",
-  name: "Prestige Greenview Gym",
-  address: "Prestige Greenview, Sarjapur Road",
-  city: "Bengaluru",
-  pincode: "560102",
-  capacity: 35,
-  gymSqFt: 1800,
-  rwaName: "Prestige Greenview Residents Association",
-  totalUnits: 420,
-  contactPersonName: "Anand Krishnamurthy",
-  contactPersonPhone: "9844155678",
-  contactPersonEmail: "anand.k@prestigegreenview.com",
-}
-
 const STEPS = ["Gym Details", "Services", "Equipment", "Confirm"]
 
 interface Props {
   leadId: string
-  token: string
   societyName: string
+  contactName: string
+  contactEmail: string
+  contactPhone?: string
 }
 
-export function RWASetupShell({ leadId, token, societyName }: Props) {
+export function RWASetupShell({
+  leadId,
+  societyName,
+  contactName,
+  contactEmail,
+  contactPhone,
+}: Props) {
   const [step, setStep] = useState(0)
-  const [selectedModules, setSelectedModules] = useState<string[]>(["TRAINERS", "ASSETS", "MYGATE"])
+  const [selectedModules, setSelectedModules] = useState<string[]>([])
   const [selectedEquipment, setSelectedEquipment] = useState<SelectedEquipmentItem[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -68,7 +61,12 @@ export function RWASetupShell({ leadId, token, societyName }: Props) {
     watch,
   } = useForm<GymDetailsInput>({
     resolver: zodResolver(GymDetailsSchema) as unknown as Resolver<GymDetailsInput>,
-    defaultValues: DEMO_DEFAULTS,
+    defaultValues: buildGymDetailsDefaultsFromLead({
+      societyName,
+      contactName,
+      contactEmail,
+      contactPhone,
+    }) as DefaultValues<GymDetailsInput>,
   })
 
   const gymSetupType = watch("gymSetupType") as "NEW_GYM" | "EXISTING_GYM"

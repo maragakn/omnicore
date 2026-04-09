@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface Props {
   leadId: string
+  inviteToken: string
 }
 
-export function QuoteAcceptButtons({ leadId }: Props) {
-  const router = useRouter()
+export function QuoteAcceptButtons({ leadId, inviteToken }: Props) {
   const [accepting, setAccepting] = useState(false)
   const [rejecting, setRejecting] = useState(false)
   const [done, setDone] = useState<"accepted" | "rejected" | null>(null)
@@ -21,6 +21,11 @@ export function QuoteAcceptButtons({ leadId }: Props) {
       const res = await fetch(`/api/leads/${leadId}/quote/accept`, { method: "POST" })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? "Failed to accept quote")
+      await fetch("/api/rwa/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: inviteToken }),
+      }).catch(() => {})
       setDone("accepted")
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong")
@@ -54,6 +59,12 @@ export function QuoteAcceptButtons({ leadId }: Props) {
         <p className="text-sm text-[#6b7280]">
           Your gym setup is confirmed. The CultSport team will be in touch soon.
         </p>
+        <Link
+          href="/rwa-admin"
+          className="inline-flex mt-4 px-4 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
+        >
+          Open your dashboard
+        </Link>
       </div>
     )
   }

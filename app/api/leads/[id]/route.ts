@@ -21,8 +21,13 @@ export async function GET(
     let equipmentCategory: string | null = null
     if (lead.formData) {
       try {
-        const fd = JSON.parse(lead.formData)
-        if (fd.gymSqFt && fd.totalUnits) {
+        const fd = JSON.parse(lead.formData) as {
+          gymSqFt?: number
+          totalUnits?: number
+          selectedModules?: unknown
+        }
+        const wantsAssets = Array.isArray(fd.selectedModules) && fd.selectedModules.includes("ASSETS")
+        if (wantsAssets && fd.gymSqFt && fd.totalUnits) {
           equipmentCategory = deriveEquipmentCategory(fd.gymSqFt, fd.totalUnits)
         }
       } catch {

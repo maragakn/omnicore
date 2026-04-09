@@ -1,3 +1,5 @@
+import { InviteLinkCopy } from "@/components/leads/InviteLinkCopy"
+
 interface Lead {
   id: string
   societyName: string
@@ -76,10 +78,7 @@ export function LeadReviewPanel({ lead, formData }: Props) {
       {lead.status === "INVITED" && (
         <>
           <hr className="border-[#1f2937]" />
-          <div className="space-y-1">
-            <p className="text-xs text-[#6b7280]">Invite Link</p>
-            <p className="text-xs text-[#e5e7eb] font-mono break-all">{inviteLink}</p>
-          </div>
+          <InviteLinkCopy url={inviteLink} />
         </>
       )}
     </div>

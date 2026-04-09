@@ -1,13 +1,9 @@
-import { prisma } from "@/lib/db/client"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { TrainerAttendanceCard } from "@/components/dashboard/TrainerAttendanceCard"
+import { getCenterForRwaSession } from "@/lib/rwa/session"
 
 export default async function RWAAdminAttendancePage() {
-  const center = await prisma.center.findFirst({
-    where: { status: { in: ["ACTIVE", "ONBOARDING"] } },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, name: true },
-  })
+  const { center } = await getCenterForRwaSession()
 
   return (
     <div className="p-8 space-y-6 max-w-3xl">
@@ -29,9 +25,9 @@ export default async function RWAAdminAttendancePage() {
         <TrainerAttendanceCard centerId={center.id} />
       ) : (
         <div className="rounded-xl border border-dashed border-[#1f2937] bg-[#111827]/50 px-6 py-12 text-center">
-          <p className="text-sm text-[#9ca3af]">No center is linked to this view yet.</p>
+          <p className="text-sm text-[#9ca3af]">No center is linked to your account yet.</p>
           <p className="text-xs text-[#6b7280] mt-2 max-w-md mx-auto">
-            Once your society gym is set up in OmniCore, trainer attendance for that center will appear here.
+            After your quote is accepted, trainer attendance for your society gym will appear here.
           </p>
         </div>
       )}

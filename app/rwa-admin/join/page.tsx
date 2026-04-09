@@ -1,15 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { useState, Suspense } from "react"
 
-export default function RWAJoinPage() {
+function RwaJoinForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextDefault = searchParams.get("next") ?? "/rwa-admin"
+
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Accept either the full URL or just the raw token
   const extractToken = (value: string): string => {
     const trimmed = value.trim()
     const match = trimmed.match(/\/rwa\/setup\/([a-f0-9]+)/)
@@ -31,20 +33,34 @@ export default function RWAJoinPage() {
     setError(null)
 
     try {
-      const res = await fetch(`/api/leads/token/${token}`)
-      const json = await res.json()
+      const res = await fetch("/api/rwa/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      })
+      const json = await res.json().catch(() => ({}))
 
       if (!res.ok) {
         setError(json.error ?? "Invalid or expired invite link.")
         return
       }
 
-      const status = json.lead?.status
+      const status = json.lead?.status as string | undefined
+
+      if (status === "INVITED") {
+        router.push(`/rwa/setup/${token}`)
+        return
+      }
       if (status === "QUOTE_SENT") {
         router.push(`/rwa/quote/${token}`)
-      } else {
-        router.push(`/rwa/setup/${token}`)
+        return
       }
+      if (status === "FORM_SUBMITTED") {
+        router.push(nextDefault.startsWith("/") ? nextDefault : "/rwa-admin")
+        return
+      }
+
+      router.push(nextDefault.startsWith("/") ? nextDefault : "/rwa-admin")
     } catch {
       setError("Something went wrong. Please try again.")
     } finally {
@@ -56,7 +72,6 @@ export default function RWAJoinPage() {
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
 
-        {/* Logo */}
         <div className="text-center space-y-3">
           <div className="w-12 h-12 rounded-xl bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center mx-auto">
             <span className="text-[#f97316] text-xl font-bold">O</span>
@@ -69,12 +84,11 @@ export default function RWAJoinPage() {
           </div>
         </div>
 
-        {/* Token gate card */}
         <div className="bg-[#111111] rounded-xl border border-[#1f2937] p-6 space-y-5">
           <div>
-            <h2 className="text-sm font-medium text-[#e5e7eb]">Access your gym setup</h2>
+            <h2 className="text-sm font-medium text-[#e5e7eb]">Access your portal</h2>
             <p className="text-xs text-[#6b7280] mt-1">
-              Paste the invite link or token sent to you by the CultSport team.
+              Paste the invite link or token from CultSport. This signs you in on this device for your society&apos;s gym.
             </p>
           </div>
 
@@ -114,7 +128,6 @@ export default function RWAJoinPage() {
           </div>
         </div>
 
-        {/* Steps preview */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { step: "1", label: "Enter details", desc: "Gym info & modules" },
@@ -133,5 +146,17 @@ export default function RWAJoinPage() {
 
       </div>
     </div>
+  )
+}
+
+export default function RWAJoinPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-sm text-[#6b7280]">
+        Loading…
+      </div>
+    }>
+      <RwaJoinForm />
+    </Suspense>
   )
 }
