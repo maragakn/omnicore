@@ -120,6 +120,7 @@ export default async function RWAAdminDashboardPage() {
         </div>
       )}
 
+      {/* Billing card — shown when quote is accepted */}
       {center?.lead?.quote?.status === "ACCEPTED" && (
         <BillingCard
           quote={center.lead.quote}
@@ -131,6 +132,7 @@ export default async function RWAAdminDashboardPage() {
         <AmenityUtilizationMetrics data={utilization} />
       )}
 
+      {/* Live stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Booked Slots" value={stats.liveOccupancy} icon={Activity} accent="cyan" description="Amenity slots · local calendar day" />
         <StatCard
