@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname localhost --port 3000",
+    "dev:reset": "sh -c 'pids=$(lsof -ti:3000); [ -n \"$pids\" ] && kill $pids || true; next dev --hostname localhost --port 3000'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -15,6 +16,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force && tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "trino:discover": "tsx scripts/discover-centers.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

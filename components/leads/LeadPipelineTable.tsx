@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { StatusBadge } from "@/components/shared/StatusBadge"
+import { OmniMascot } from "@/components/shared/OmniMascot"
 
 interface Lead {
   id: string
@@ -20,8 +21,10 @@ interface Props {
 export function LeadPipelineTable({ leads }: Props) {
   if (leads.length === 0) {
     return (
-      <div className="text-center py-16 text-[#6b7280]">
-        No leads yet. Invite a society to get started.
+      <div className="flex flex-col items-center py-16 gap-3 text-center">
+        <OmniMascot variant="empty" size="lg" />
+        <p className="text-sm font-medium text-[#9ca3af]">No leads yet</p>
+        <p className="text-xs text-[#6b7280]">Invite a society to get started.</p>
       </div>
     )
   }

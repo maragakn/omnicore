@@ -1,17 +1,16 @@
 "use client"
 
-import { useSearchParams, useRouter } from "next/navigation"
-import { useState, Suspense } from "react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { OmniMascot } from "@/components/shared/OmniMascot"
 
-function RwaJoinForm() {
+export default function RWAJoinPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const nextDefault = searchParams.get("next") ?? "/rwa-admin"
-
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Accept either the full URL or just the raw token
   const extractToken = (value: string): string => {
     const trimmed = value.trim()
     const match = trimmed.match(/\/rwa\/setup\/([a-f0-9]+)/)
@@ -33,34 +32,20 @@ function RwaJoinForm() {
     setError(null)
 
     try {
-      const res = await fetch("/api/rwa/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      })
-      const json = await res.json().catch(() => ({}))
+      const res = await fetch(`/api/leads/token/${token}`)
+      const json = await res.json()
 
       if (!res.ok) {
         setError(json.error ?? "Invalid or expired invite link.")
         return
       }
 
-      const status = json.lead?.status as string | undefined
-
-      if (status === "INVITED") {
-        router.push(`/rwa/setup/${token}`)
-        return
-      }
+      const status = json.lead?.status
       if (status === "QUOTE_SENT") {
         router.push(`/rwa/quote/${token}`)
-        return
+      } else {
+        router.push(`/rwa/setup/${token}`)
       }
-      if (status === "FORM_SUBMITTED") {
-        router.push(nextDefault.startsWith("/") ? nextDefault : "/rwa-admin")
-        return
-      }
-
-      router.push(nextDefault.startsWith("/") ? nextDefault : "/rwa-admin")
     } catch {
       setError("Something went wrong. Please try again.")
     } finally {
@@ -72,10 +57,9 @@ function RwaJoinForm() {
     <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
 
+        {/* Logo + mascot */}
         <div className="text-center space-y-3">
-          <div className="w-12 h-12 rounded-xl bg-[#f97316]/10 border border-[#f97316]/20 flex items-center justify-center mx-auto">
-            <span className="text-[#f97316] text-xl font-bold">O</span>
-          </div>
+          <OmniMascot variant="hero" size="xl" className="mx-auto" />
           <div>
             <h1 className="text-2xl font-semibold text-[#e5e7eb]">Welcome to OmniCore</h1>
             <p className="text-sm text-[#6b7280] mt-1">
@@ -84,11 +68,12 @@ function RwaJoinForm() {
           </div>
         </div>
 
+        {/* Token gate card */}
         <div className="bg-[#111111] rounded-xl border border-[#1f2937] p-6 space-y-5">
           <div>
-            <h2 className="text-sm font-medium text-[#e5e7eb]">Access your portal</h2>
+            <h2 className="text-sm font-medium text-[#e5e7eb]">Access your gym setup</h2>
             <p className="text-xs text-[#6b7280] mt-1">
-              Paste the invite link or token from CultSport. This signs you in on this device for your society&apos;s gym.
+              Paste the invite link or token sent to you by the CultSport team.
             </p>
           </div>
 
@@ -128,6 +113,7 @@ function RwaJoinForm() {
           </div>
         </div>
 
+        {/* Steps preview */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { step: "1", label: "Enter details", desc: "Gym info & modules" },
@@ -146,17 +132,5 @@ function RwaJoinForm() {
 
       </div>
     </div>
-  )
-}
-
-export default function RWAJoinPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-sm text-[#6b7280]">
-        Loading…
-      </div>
-    }>
-      <RwaJoinForm />
-    </Suspense>
   )
 }

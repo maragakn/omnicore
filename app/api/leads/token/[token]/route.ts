@@ -15,8 +15,9 @@ export async function GET(
   if (!lead) {
     return NextResponse.json({ error: "Invalid invite link" }, { status: 404 })
   }
-  // Allow quote review page to load lead+quote even after form is submitted
-  if (lead.status === "QUOTE_SENT" && forQuote) {
+  // Allow quote review page to load lead+quote for all post-submission statuses
+  const QUOTE_VISIBLE_STATUSES = ["QUOTE_SENT", "REVISION_REQUESTED", "ACCEPTED", "CANCELLED"]
+  if (forQuote && QUOTE_VISIBLE_STATUSES.includes(lead.status)) {
     const fullLead = await prisma.lead.findUnique({
       where: { inviteToken: token },
       include: { quote: { include: { lineItems: true } } },

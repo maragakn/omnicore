@@ -9,7 +9,8 @@ import {
   ROLE_SWITCH_TARGET,
   type Role,
 } from "@/lib/constants/navigation"
-import { ArrowLeftRight, Zap } from "lucide-react"
+import { ArrowLeftRight } from "lucide-react"
+import { OmniAvatar } from "./OmniMascot"
 
 interface SidebarProps {
   role: Role
@@ -27,12 +28,15 @@ export function Sidebar({ role, currentPath, endSlot }: SidebarProps) {
   return (
     <aside className="flex flex-col h-screen w-60 shrink-0 border-r border-[#1f2937] bg-[#0d1117]">
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1f2937]">
-        <div className="flex items-center justify-center w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30">
-          <Zap className="w-4 h-4 text-cyan-400" />
+        <OmniAvatar size="xs" className="rounded-full ring-1 ring-cyan-500/40 shrink-0" />
+        <div>
+          <span className="font-display text-[15px] font-bold tracking-tight text-white block leading-tight">
+            OmniCore
+          </span>
+          <span className="text-[9px] text-cyan-500/60 tracking-widest uppercase font-medium">
+            Gym Ops
+          </span>
         </div>
-        <span className="font-display text-[15px] font-bold tracking-tight text-white">
-          OmniCore
-        </span>
       </div>
 
       {/* ── Role pill ── */}

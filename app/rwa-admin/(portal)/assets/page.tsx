@@ -2,8 +2,8 @@ import { prisma } from "@/lib/db/client"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { UpgradeAdCard } from "@/components/equipment/UpgradeAdCard"
 import { CATEGORY_DISPLAY_NAMES } from "@/lib/equipment/catalog"
-import { Wrench, Clock, AlertCircle, CheckCircle2, Ticket } from "lucide-react"
-import { getCenterForRwaSession } from "@/lib/rwa/session"
+import { Clock, AlertCircle, CheckCircle2, Ticket, Wrench } from "lucide-react"
+import { OmniMascot } from "@/components/shared/OmniMascot"
 
 function getDaysUntil(date: Date | null): number | null {
   if (!date) return null
@@ -47,34 +47,11 @@ function MaintenanceTimer({ nextServiceDue }: { nextServiceDue: Date | null }) {
 }
 
 export default async function RWAAdminAssetsPage() {
-  const { center: sessionCenter } = await getCenterForRwaSession()
-
-  if (!sessionCenter) {
-    return (
-      <div className="p-8">
-        <SectionHeader
-          title="Assets"
-          description="Equipment installed at your gym facility."
-          badge={<span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">READ ONLY</span>}
-        />
-        <div className="rounded-xl border border-dashed border-[#1f2937] p-12 text-center mt-6">
-          <Wrench className="w-8 h-8 text-[#374151] mx-auto mb-3" />
-          <p className="text-sm font-medium text-[#9ca3af]">No center linked yet</p>
-          <p className="text-xs text-[#6b7280] mt-1">Equipment will appear here after your quote is accepted.</p>
-        </div>
-      </div>
-    )
-  }
-
-  const center = await prisma.center.findUnique({
-    where: { id: sessionCenter.id },
-    include: {
-      equipmentAssets: {
-        include: {
-          serviceRequests: { where: { status: { in: ["OPEN", "ASSIGNED"] } } },
-        },
-      },
-    },
+  // For demo: get the most recent center that has assets
+  const center = await prisma.center.findFirst({
+    where: { status: { in: ["ACTIVE", "ONBOARDING"] } },
+    include: { equipmentAssets: { include: { serviceRequests: { where: { status: { in: ["OPEN", "ASSIGNED"] } } } } } },
+    orderBy: { createdAt: "desc" },
   })
 
   if (!center || center.equipmentAssets.length === 0) {
@@ -85,27 +62,30 @@ export default async function RWAAdminAssetsPage() {
           description="Equipment installed at your gym facility."
           badge={<span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">READ ONLY</span>}
         />
-        <div className="rounded-xl border border-dashed border-[#1f2937] p-12 text-center mt-6">
-          <Wrench className="w-8 h-8 text-[#374151] mx-auto mb-3" />
+        <div className="rounded-xl border border-dashed border-[#1f2937] p-12 flex flex-col items-center text-center mt-6 gap-2">
+          <OmniMascot variant="empty" size="lg" />
           <p className="text-sm font-medium text-[#9ca3af]">No equipment installed yet</p>
-          <p className="text-xs text-[#6b7280] mt-1">Equipment will appear here as your setup progresses.</p>
+          <p className="text-xs text-[#6b7280]">Equipment will appear here after your quote is accepted.</p>
         </div>
       </div>
     )
   }
 
+  // Fetch catalog items for upgrade check (only for assets with catalogItemSku)
   const skus = center.equipmentAssets.map((a) => a.catalogItemSku).filter((s): s is string => !!s)
   const catalogItems = skus.length > 0
     ? await prisma.equipmentCatalogItem.findMany({ where: { sku: { in: skus } } })
     : []
   const catalogMap = new Map(catalogItems.map((c) => [c.sku, c]))
 
+  // Fetch newer items for upgrade ads
   const supersedingSkus = catalogItems.filter((c) => !c.isLatestVersion && c.supersedesSku).map((c) => c.supersedesSku!)
   const newerItems = supersedingSkus.length > 0
     ? await prisma.equipmentCatalogItem.findMany({ where: { sku: { in: supersedingSkus } } })
     : []
   const newerItemMap = new Map(newerItems.map((n) => [n.sku, n]))
 
+  // Group by category
   const grouped = new Map<string, typeof center.equipmentAssets>()
   for (const asset of center.equipmentAssets) {
     const cat = asset.category
@@ -125,6 +105,22 @@ export default async function RWAAdminAssetsPage() {
         badge={<span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">READ ONLY</span>}
       />
 
+      {/* Overdue alert banner with mascot */}
+      {overdueCount > 0 && (
+        <div className="relative flex items-center gap-5 rounded-2xl border border-red-500/20 bg-red-500/5 px-6 py-4 overflow-hidden">
+          <OmniMascot variant="alert" size="md" className="shrink-0" />
+          <div>
+            <p className="text-sm font-bold text-red-400">
+              {overdueCount} equipment item{overdueCount !== 1 ? "s" : ""} overdue for maintenance
+            </p>
+            <p className="text-xs text-[#6b7280] mt-0.5">
+              Please raise a service request or contact CultSport support.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Summary stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="rounded-xl border border-[#1f2937] bg-[#111827] px-4 py-3 text-center">
           <p className="text-2xl font-bold text-white">{totalAssets}</p>
@@ -140,6 +136,7 @@ export default async function RWAAdminAssetsPage() {
         </div>
       </div>
 
+      {/* Asset cards grouped by category */}
       <div className="space-y-5">
         {Array.from(grouped.entries()).map(([category, assets]) => {
           const catItem = assets[0]
@@ -150,6 +147,7 @@ export default async function RWAAdminAssetsPage() {
 
           return (
             <div key={category} className="rounded-2xl border border-[#1f2937] overflow-hidden">
+              {/* Category header */}
               <div className="relative h-20 overflow-hidden bg-[#0d1117]">
                 {heroImage && (
                   <img src={heroImage} alt={displayName} className="w-full h-full object-cover opacity-50" />
@@ -163,6 +161,7 @@ export default async function RWAAdminAssetsPage() {
                 </div>
               </div>
 
+              {/* Individual assets */}
               <div className="divide-y divide-[#1a2030] bg-[#0a0d14]">
                 {assets.map((asset) => {
                   const catalogItem = asset.catalogItemSku ? catalogMap.get(asset.catalogItemSku) : null
@@ -173,6 +172,7 @@ export default async function RWAAdminAssetsPage() {
                   return (
                     <div key={asset.id} className="px-5 py-4 space-y-2">
                       <div className="flex items-start gap-4">
+                        {/* Asset image */}
                         {(catalogItem?.imageUrl) && (
                           <img
                             src={catalogItem.imageUrl}
@@ -181,6 +181,7 @@ export default async function RWAAdminAssetsPage() {
                           />
                         )}
 
+                        {/* Details */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-white truncate">{asset.name}</p>
                           <p className="text-[11px] text-[#6b7280] font-mono">{asset.catalogItemSku ?? asset.model ?? "—"}</p>
@@ -191,6 +192,7 @@ export default async function RWAAdminAssetsPage() {
                           )}
                         </div>
 
+                        {/* Maintenance timer + SR badge */}
                         <div className="text-right shrink-0 space-y-1">
                           <MaintenanceTimer nextServiceDue={asset.nextServiceDue} />
                           {openSRs > 0 && (
@@ -202,6 +204,7 @@ export default async function RWAAdminAssetsPage() {
                         </div>
                       </div>
 
+                      {/* Upgrade ad if applicable */}
                       {hasUpgrade && newerItem && (
                         <UpgradeAdCard
                           currentSku={asset.catalogItemSku!}

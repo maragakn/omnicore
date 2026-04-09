@@ -1,9 +1,8 @@
-import Link from "next/link"
 import { QuoteSummaryCard } from "@/components/rwa/QuoteSummaryCard"
-import { EstablishRwaSession } from "@/components/rwa/EstablishRwaSession"
 import { QuoteAcceptButtons } from "@/components/rwa/QuoteAcceptButtons"
 import { QuoteRevisionForm } from "@/components/rwa/QuoteRevisionForm"
 import { QuoteHistoryTimeline } from "@/components/leads/QuoteHistoryTimeline"
+import { OmniMascot } from "@/components/shared/OmniMascot"
 
 interface Props {
   params: Promise<{ token: string }>
@@ -21,11 +20,10 @@ export default async function RWAQuotePage({ params }: Props) {
     const json = await res.json().catch(() => ({}))
     const message = json.error ?? "Unable to load quote"
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Unavailable</h1>
-          <p className="text-sm text-[#6b7280]">{message}</p>
-        </div>
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 gap-4">
+        <OmniMascot variant="alert" size="lg" />
+        <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Unavailable</h1>
+        <p className="text-sm text-[#6b7280]">{message}</p>
       </div>
     )
   }
@@ -35,45 +33,34 @@ export default async function RWAQuotePage({ params }: Props) {
 
   if (!quote) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Not Ready</h1>
-          <p className="text-sm text-[#6b7280]">
-            The CultSport team is still preparing your quote. Check back soon.
-          </p>
-        </div>
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 gap-4">
+        <OmniMascot variant="empty" size="lg" />
+        <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Not Ready</h1>
+        <p className="text-sm text-[#6b7280]">
+          The CultSport team is still preparing your quote. Check back soon.
+        </p>
       </div>
     )
   }
 
   if (quote.status === "CANCELLED") {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-        <div className="text-center space-y-3">
-          <h1 className="text-xl font-semibold text-[#e5e7eb]">Negotiation Cancelled</h1>
-          <p className="text-sm text-[#6b7280]">This quote has been cancelled. Contact CultSport to restart.</p>
-        </div>
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 gap-4">
+        <OmniMascot variant="alert" size="lg" />
+        <h1 className="text-xl font-semibold text-[#e5e7eb]">Negotiation Cancelled</h1>
+        <p className="text-sm text-[#6b7280]">This quote has been cancelled. Contact CultSport to restart.</p>
       </div>
     )
   }
 
   if (quote.status === "ACCEPTED") {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-        <EstablishRwaSession token={token} />
-        <div className="text-center space-y-3 max-w-md">
-          <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto">
-            <span className="text-emerald-400 text-xl">✓</span>
-          </div>
-          <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Accepted</h1>
-          <p className="text-sm text-[#6b7280]">Your gym setup is confirmed. CultSport will be in touch.</p>
-          <Link
-            href="/rwa-admin"
-            className="inline-flex mt-2 px-4 py-2.5 bg-[#f97316] text-white text-sm font-medium rounded-lg hover:bg-[#ea6c0c] transition-colors"
-          >
-            Open your dashboard
-          </Link>
-        </div>
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 gap-4">
+        <OmniMascot variant="success" size="xl" />
+        <h1 className="text-2xl font-semibold text-emerald-400">Quote Accepted!</h1>
+        <p className="text-sm text-[#6b7280] text-center max-w-xs">
+          Your gym setup is confirmed. The CultSport team will be in touch to schedule installation.
+        </p>
       </div>
     )
   }
@@ -81,10 +68,8 @@ export default async function RWAQuotePage({ params }: Props) {
   if (quote.status === "REVISION_REQUESTED") {
     return (
       <div className="min-h-screen bg-[#0a0a0a] py-12 px-4">
-        <div className="max-w-2xl mx-auto space-y-6 text-center">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mx-auto">
-            <span className="text-amber-400 text-lg">↺</span>
-          </div>
+        <div className="max-w-2xl mx-auto space-y-6 flex flex-col items-center text-center">
+          <OmniMascot variant="empty" size="lg" />
           <h1 className="text-xl font-semibold text-[#e5e7eb]">Revision Requested</h1>
           <p className="text-sm text-[#6b7280]">
             Your revision request has been sent to the CultSport team. They will review and send an updated quote shortly.
@@ -97,27 +82,22 @@ export default async function RWAQuotePage({ params }: Props) {
 
   if (quote.status !== "SENT") {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Not Ready</h1>
-          <p className="text-sm text-[#6b7280]">The CultSport team is still preparing your quote.</p>
-        </div>
+      <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center px-4 gap-4">
+        <OmniMascot variant="empty" size="lg" />
+        <h1 className="text-xl font-semibold text-[#e5e7eb]">Quote Not Ready</h1>
+        <p className="text-sm text-[#6b7280]">The CultSport team is still preparing your quote.</p>
       </div>
     )
   }
 
-  // Parse current equipment for the revision form
   const formData = lead.formData ? (() => { try { return JSON.parse(lead.formData) } catch { return null } })() : null
   const currentEquipment = formData?.selectedEquipment ?? []
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] py-12 px-4">
-      <EstablishRwaSession token={token} />
       <div className="max-w-2xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <div className="w-10 h-10 rounded-xl bg-[#f97316]/10 flex items-center justify-center mx-auto">
-            <span className="text-[#f97316] text-lg font-bold">O</span>
-          </div>
+        <div className="text-center space-y-3">
+          <OmniMascot variant="avatar" size="sm" className="mx-auto ring-2 ring-cyan-500/30 rounded-full" />
           <h1 className="text-2xl font-semibold text-[#e5e7eb]">Your Quote</h1>
           <p className="text-sm text-[#6b7280]">
             Review the pricing below for <strong className="text-[#e5e7eb]">{lead.societyName}</strong>.
@@ -129,7 +109,7 @@ export default async function RWAQuotePage({ params }: Props) {
 
         <QuoteSummaryCard quote={quote} />
 
-        <QuoteAcceptButtons leadId={lead.id} inviteToken={token} />
+        <QuoteAcceptButtons leadId={lead.id} />
 
         {/* Revision form — add/remove equipment and request changes */}
         <div className="border-t border-[#1f2937] pt-6">

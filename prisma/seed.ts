@@ -731,63 +731,9 @@ async function main() {
   console.log(`✓ ${amenityBookings.length} amenity bookings seeded (7 days, peak-hour distribution)`)
 
   // ─── Service Requests ──────────────────────────────────────────────────────
-
-  // Get the red asset (Rowing Machine at Prestige)
-  const rowingMachine = await prisma.equipmentAsset.findFirst({
-    where: { centerId: centerPrestige.id, name: "Rowing Machine" },
-  })
-
-  const elliptical = await prisma.equipmentAsset.findFirst({
-    where: { centerId: centerPrestige.id, name: "Elliptical Cross Trainer" },
-  })
-
-  await prisma.serviceRequest.createMany({
-    data: [
-      {
-        centerId: centerPrestige.id,
-        assetId: rowingMachine?.id,
-        title: "Rowing Machine — Urgent Service Required",
-        description:
-          "Chain is showing significant wear. Member complaints about noise. Machine has been flagged as unsafe and marked out of service.",
-        status: "OPEN",
-        priority: "CRITICAL",
-        reportedBy: "Rajesh Sharma (RWA Admin)",
-      },
-      {
-        centerId: centerPrestige.id,
-        assetId: elliptical?.id,
-        title: "Elliptical Cross Trainer — Scheduled Maintenance",
-        description:
-          "Flywheel squeaking during use. Lubrication and bearing check required before the quarterly service is due.",
-        status: "IN_PROGRESS",
-        priority: "MEDIUM",
-        reportedBy: "Arjun Mehta (Trainer)",
-        assignedTo: "TechServ Bangalore — Ref #TSB-9872",
-      },
-      {
-        centerId: centerBrigade.id,
-        title: "AC Unit Not Cooling Adequately",
-        description:
-          "The 2-ton split AC in the main gym area is not maintaining temperature below 24°C even at full capacity. Members complaining.",
-        status: "ASSIGNED",
-        priority: "HIGH",
-        reportedBy: "Meena Iyer (RWA Admin)",
-        assignedTo: "Carrier Service Center",
-      },
-      {
-        centerId: centerPrestige.id,
-        title: "Water Purifier Filter Replacement",
-        description: "Quarterly filter replacement due. RO membrane and pre-filter cartridges to be replaced.",
-        status: "RESOLVED",
-        priority: "LOW",
-        reportedBy: "Arjun Mehta",
-        assignedTo: "Kent RO Service",
-        resolvedAt: daysAgo(5),
-      },
-    ],
-  })
-
-  console.log("✓ Service requests created")
+  // The /cf-admin/service-requests page pulls live data from Trino AMS.
+  // No local seed records are required for that report.
+  console.log("✓ Service requests — pulled live from Trino AMS on the report page")
 
   // ─── ServicePricingConfig — default rate card ────────────────────────────────
   // Default rate card — CF Admin adjusts per-lead based on gym size, negotiation, contract term.
@@ -1240,27 +1186,25 @@ async function main() {
     ],
   })
 
-  // Service request for the overdue bench
-  await prisma.serviceRequest.create({
-    data: {
-      centerId: centerPurva.id,
-      title: "Olympic Incline Bench — Padding Repair Required",
-      description: "Left-side padding has a 5cm tear. Bench removed from use pending repair.",
-      status: "OPEN",
-      priority: "HIGH",
-      reportedBy: "Kavitha Reddy (RWA Admin)",
-    },
-  })
+  console.log("✓ Purva Panorama demo center seeded (14 assets, 2-round quote history)")
+  console.log(`✓ Seeded: ${EQUIPMENT_CATALOG.length} catalog items, 3 model gym tiers, lead + quote funnel data`)
 
-  console.log("✓ Purva Panorama demo center seeded (14 assets, 1 overdue SR, 2-round negotiation history)")
-  console.log(`✓ Seeded: ${EQUIPMENT_CATALOG.length} catalog items, 3 model gym tiers, 4+ leads (DEMO-TOKEN-2026 + 3 pipeline), 1 quote`)
+  const [centerCount, trainerCount, assetCount, srCount, leadCount, quoteCount] = await Promise.all([
+    prisma.center.count(),
+    prisma.trainer.count(),
+    prisma.equipmentAsset.count(),
+    prisma.serviceRequest.count(),
+    prisma.lead.count(),
+    prisma.quote.count(),
+  ])
+
   console.log("\n✅ Seed complete!")
-  console.log(`   Centers: 3 (2 active, 1 onboarding)`)
-  console.log(`   Center Modules: seeded per center (Trainers, Assets, MyGate, Branding, VMs)`)
-  console.log(`   Hiring pipeline: 4 candidates · L0 enrollments: 3`)
-  console.log(`   Trainers: 6 roster (5 mapped, 1 bench); 3 fulltime mapped, 2 PT mapped`)
-  console.log(`   Assets: 8 (including 1 red, 1 amber)`)
-  console.log(`   Service Requests: 4 (1 open critical, 1 in-progress, 1 assigned, 1 resolved)`)
+  console.log(`   Centers: ${centerCount}`)
+  console.log(`   Trainers: ${trainerCount}`)
+  console.log(`   Assets: ${assetCount}`)
+  console.log(`   Service Requests: ${srCount}`)
+  console.log(`   Leads: ${leadCount}`)
+  console.log(`   Quotes: ${quoteCount}`)
   console.log(`   Amenity Bookings: ${amenityBookings.length}`)
   console.log(`   PT Sessions: ${ptSessions.length}`)
 }
