@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { CENTER_MODULE_META } from "@/lib/constants/enums"
@@ -50,7 +50,9 @@ export function RWASetupShell({ leadId, token, societyName }: Props) {
     handleSubmit,
     formState: { errors },
   } = useForm<GymDetailsInput>({
-    resolver: zodResolver(GymDetailsSchema),
+    // z.coerce fields have `unknown` input type in Zod v4; cast is safe since the
+    // schema's output type matches GymDetailsInput exactly.
+    resolver: zodResolver(GymDetailsSchema) as unknown as Resolver<GymDetailsInput>,
   })
 
   const toggleModule = (key: string) => {
