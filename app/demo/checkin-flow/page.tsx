@@ -12,6 +12,80 @@ function handlePasteText(setter: (value: string) => void) {
   }
 }
 
+const flowStepClass =
+  "flex flex-col gap-1.5 rounded-lg border border-white/10 bg-oc-inset/90 p-3 text-left shadow-sm md:min-w-0"
+
+function FlowArrow() {
+  return (
+    <div className="flex shrink-0 items-center self-center px-0.5 text-oc-fg-dim" aria-hidden>
+      <span className="text-lg leading-none">→</span>
+    </div>
+  )
+}
+
+/** Product story: MyGate booking → CureFit QR → kiosk records resident attendance (demo uses local APIs). */
+function AmenityCheckinStoryFlow() {
+  return (
+    <section
+      className="rounded-xl border border-white/10 bg-[#111] p-4 md:p-5"
+      aria-labelledby="checkin-flow-story-heading"
+    >
+      <h2 id="checkin-flow-story-heading" className="text-sm font-semibold text-white">
+        How this flow works
+      </h2>
+      <p className="mt-1 text-xs text-oc-fg-muted">
+        In production, the resident lives in MyGate; CureFit (Cult) issues the gym check-in experience. This page
+        tells the same story using a small sandbox you can click through.
+      </p>
+      <div className="mt-4 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
+        <ol className="flex min-w-max list-none flex-row flex-nowrap items-stretch gap-2 md:min-w-0 md:w-full">
+        <li className={`${flowStepClass} w-[11rem] shrink-0 md:w-auto md:flex-1`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#a5b4fc]">1 · MyGate</span>
+          <span className="text-sm font-medium text-oc-fg-soft">Resident books an amenity</span>
+          <span className="text-xs text-oc-fg-muted">
+            They choose a slot for the society gym or pool inside the MyGate app.
+          </span>
+        </li>
+        <FlowArrow />
+        <li className={`${flowStepClass} w-[11rem] shrink-0 md:w-auto md:flex-1`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#a5b4fc]">2 · Handoff</span>
+          <span className="text-sm font-medium text-oc-fg-soft">MyGate tells CureFit</span>
+          <span className="text-xs text-oc-fg-muted">
+            A booking event is sent to CureFit systems (webhook or partner API). Here we mimic that with the proxy
+            below.
+          </span>
+        </li>
+        <FlowArrow />
+        <li className={`${flowStepClass} w-[11rem] shrink-0 md:w-auto md:flex-1`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#a5b4fc]">3 · Cult side</span>
+          <span className="text-sm font-medium text-oc-fg-soft">QR for check-in</span>
+          <span className="text-xs text-oc-fg-muted">
+            CureFit confirms the booking and gives the resident a check-in QR—the same idea as the Cult app at the
+            gym gate.
+          </span>
+        </li>
+        <FlowArrow />
+        <li className={`${flowStepClass} w-[11rem] shrink-0 md:w-auto md:flex-1`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#a5b4fc]">4 · Kiosk</span>
+          <span className="text-sm font-medium text-oc-fg-soft">Scan at entry</span>
+          <span className="text-xs text-oc-fg-muted">
+            Staff or a fixed scanner reads the QR when the resident arrives for their slot.
+          </span>
+        </li>
+        <FlowArrow />
+        <li className={`${flowStepClass} w-[11rem] shrink-0 md:w-auto md:flex-1`}>
+          <span className="text-[10px] font-semibold uppercase tracking-wide text-[#a5b4fc]">5 · Attendance</span>
+          <span className="text-sm font-medium text-oc-fg-soft">Resident counted present</span>
+          <span className="text-xs text-oc-fg-muted">
+            The scan marks the amenity visit—footfall / attendance for that resident and time window is recorded.
+          </span>
+        </li>
+        </ol>
+      </div>
+    </section>
+  )
+}
+
 /** Hackathon UI: simulate "MyGate calls CureFit" then show resident QR; test verify below. */
 export default function DemoCheckinFlowPage() {
   const [centerId, setCenterId] = useState("")
@@ -103,17 +177,20 @@ export default function DemoCheckinFlowPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-8 p-6 text-oc-fg-soft">
+    <div className="mx-auto max-w-3xl space-y-8 p-6 text-oc-fg-soft">
       <div>
-        <h1 className="text-xl font-semibold">Demo: MyGate proxy → QR → kiosk</h1>
-        <p className="mt-2 text-sm text-oc-fg-muted">
-          1) Choose a <code className="text-[#a5b4fc]">centerId</code> from the dropdown (loaded from this server&apos;s DB) or paste one that exists after{" "}
-          <code className="text-[#a5b4fc]">npm run db:seed</code> — ids change each seed, so an old id from docs or another machine will fail. 2) Create booking + QR. 3) Verify below.
-        </p>
+        <h1 className="text-xl font-semibold text-white">Resident amenity check-in (demo)</h1>
       </div>
 
+      <AmenityCheckinStoryFlow />
+
+      <p className="text-sm font-medium text-oc-fg-muted">Proxy flow</p>
+
       <section className="space-y-3 rounded-lg border border-white/10 bg-[#111] p-4">
-        <h2 className="text-sm font-medium text-white">Proxy: POST /api/demo/mygate-proxy/booking</h2>
+        <h2 className="text-sm font-medium text-white">Step A — Simulate MyGate → CureFit (booking + QR)</h2>
+        <p className="text-[11px] text-oc-fg-dim">
+          <code className="text-oc-fg-muted">POST /api/demo/mygate-proxy/booking</code>
+        </p>
         {centersError ? (
           <p className="text-xs text-amber-400">{centersError}</p>
         ) : null}
@@ -225,7 +302,10 @@ export default function DemoCheckinFlowPage() {
       </section>
 
       <section className="space-y-3 rounded-lg border border-white/10 bg-[#111] p-4">
-        <h2 className="text-sm font-medium text-white">Kiosk: POST /api/kiosk/verify-checkin</h2>
+        <h2 className="text-sm font-medium text-white">Step B — Simulate gate kiosk (scan + attendance)</h2>
+        <p className="text-[11px] text-oc-fg-dim">
+          <code className="text-oc-fg-muted">POST /api/kiosk/verify-checkin</code>
+        </p>
         <p className="text-[11px] text-oc-fg-dim">
           Response JSON appears here after <strong className="text-oc-fg-muted">Verify check-in</strong> — not from Create booking.
         </p>
